@@ -1,0 +1,109 @@
+services:
+  # === AUTH DATABASE ===
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # === BONDS DATABASE ===
+  bonds-db:
+    image: postgres:15
+    container_name: bonds-db
+    restart: always
+    environment:
+      POSTGRES_USER: bonds_user
+      POSTGRES_PASSWORD: bonds_pass
+      POSTGRES_DB: bonds_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - bonds_data:/var/lib/postgresql/data
+
+  # === PORTFOLIO DATABASE ===
+  portfolio-db:
+    image: postgres:15
+    container_name: portfolio-db
+    restart: always
+    environment:
+      POSTGRES_USER: portfolio_user
+      POSTGRES_PASSWORD: portfolio_pass
+      POSTGRES_DB: portfolio_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - portfolio_data:/var/lib/postgresql/data
+
+  # === AUTH SERVICE ===
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    depends_on:
+      - auth-db
+    environment:
+      DB_HOST: auth-db
+      DB_PORT: 5432
+      DB_USER: auth_user
+      DB_PASSWORD: auth_pass
+      DB_NAME: auth_db
+    ports:
+      - "8001:8000"
+
+  # === BONDS SERVICE ===
+  bonds-service:
+    build: ./bonds-service
+    container_name: bonds-service
+    depends_on:
+      - bonds-db
+    environment:
+      DB_HOST: bonds-db
+      DB_PORT: 5432
+      DB_USER: bonds_user
+      DB_PASSWORD: bonds_pass
+      DB_NAME: bonds_db
+    ports:
+      - "8002:8000"
+
+  # === PORTFOLIO SERVICE ===
+  portfolio-service:
+    build: ./portfolio-service
+    container_name: portfolio-service
+    depends_on:
+      - portfolio-db
+    environment:
+      DB_HOST: portfolio-db
+      DB_PORT: 5432
+      DB_USER: portfolio_user
+      DB_PASSWORD: portfolio_pass
+      DB_NAME: portfolio_db
+    ports:
+      - "8003:8000"
+
+  # === API GATEWAY ===
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    depends_on:
+      - auth-service
+      - bonds-service
+      - portfolio-service
+    ports:
+      - "8080:8080"
+
+volumes:
+  auth_data:
+  bonds_data:
+  portfolio_data:
+
+
+networks:
+  app-network:
