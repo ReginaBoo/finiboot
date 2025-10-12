@@ -1,1 +1,47 @@
+# ========================
+# Go
+# ========================
+/bin/
+/obj/
+/*.exe
+/*.dll
+/*.so
+/*.dylib
+/*.test
+/vendor/
+
+# Go modules
+/go.sum
+
+# ========================
+# Node / Frontend (React + Vite)
+/node_modules/
+/dist/
+/build/
+
+# Environment files
 .env
+.env.*       # все другие .env файлы
+.env.local
+.env.*.local
+
+# ========================
+# Docker
+*.log
+docker-compose.override.yml
+**/Dockerfile.dev
+**/docker-compose.dev.yml
+
+# ========================
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*.bak
+
+# ========================
+# Misc
+*.tmp

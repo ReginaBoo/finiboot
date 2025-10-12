@@ -28,6 +28,8 @@ services:
       - "5434:5432"
     volumes:
       - bonds_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   # === PORTFOLIO DATABASE ===
   portfolio-db:
@@ -42,6 +44,8 @@ services:
       - "5435:5432"
     volumes:
       - portfolio_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   # === AUTH SERVICE ===
   auth-service:
@@ -56,8 +60,9 @@ services:
       DB_PASSWORD: auth_pass
       DB_NAME: auth_db
     ports:
-      - "8001:8000"
-
+      - "8001:8001"
+    networks:
+      - app-network
   # === BONDS SERVICE ===
   bonds-service:
     build: ./bonds-service
@@ -71,8 +76,9 @@ services:
       DB_PASSWORD: bonds_pass
       DB_NAME: bonds_db
     ports:
-      - "8002:8000"
-
+      - "8002:8002"
+    networks:
+      - app-network
   # === PORTFOLIO SERVICE ===
   portfolio-service:
     build: ./portfolio-service
@@ -86,8 +92,9 @@ services:
       DB_PASSWORD: portfolio_pass
       DB_NAME: portfolio_db
     ports:
-      - "8003:8000"
-
+      - "8003:8003"
+    networks:
+      - app-network
   # === API GATEWAY ===
   gateway:
     build: ./gateway
@@ -96,8 +103,15 @@ services:
       - auth-service
       - bonds-service
       - portfolio-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8001
+      BONDS_SERVICE_URL: http://bonds-service:8002
+      PORTFOLIO_SERVICE_URL: http://portfolio-service:8003
+      APP_PORT: 8080
     ports:
       - "8080:8080"
+    networks:
+      - app-network
 
 volumes:
   auth_data:
