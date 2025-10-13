@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -17,7 +18,7 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-	err := godotenv.Load(".env")
+	err := godotenv.Load(".env.local")
 	if err != nil {
 		log.Println(".env file not find")
 	}
@@ -30,4 +31,9 @@ func LoadConfig() *Config {
 		DBName:     os.Getenv("DB_NAME"),
 		AppPort:    os.Getenv("APP_PORT"),
 	}
+}
+
+func CreateDsn(cfg *Config) string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
 }

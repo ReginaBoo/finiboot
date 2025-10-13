@@ -56,9 +56,9 @@ services:
     environment:
       DB_HOST: auth-db
       DB_PORT: 5432
-      DB_USER: auth_user
-      DB_PASSWORD: auth_pass
-      DB_NAME: auth_db
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
     ports:
       - "8001:8001"
     networks:
