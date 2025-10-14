@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterAurhRoutes(r *gin.Engine) {
+func RegisterAuthRoutes(r *gin.Engine) {
 	r.Any("/auth/*path", func(ctx *gin.Context) {
 		proxy.Forward(ctx, "http://auth-service:8001")
 	})
