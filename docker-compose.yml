@@ -119,5 +119,7 @@ volumes:
   portfolio_data:
 
 
+environment:
+  - IS_DOCKER=true
 networks:
   app-network:
