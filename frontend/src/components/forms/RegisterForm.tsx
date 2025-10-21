@@ -1,7 +1,12 @@
+// RegisterForm.tsx
 import { useState } from "react";
 import axios from "axios";
 
-export default function RegisterForm() {
+interface FormProps {
+  onSuccess?: () => void; // можно передавать колбэк при успешной регистрации
+}
+
+export default function RegisterForm({ onSuccess }: FormProps) {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [message, setMessage] = useState("");
 
@@ -13,46 +18,19 @@ export default function RegisterForm() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:8080/auth/register", form);
-      console.log(res.data);
-      setMessage("Регистрация успешна!")
-      setForm({ name: "", email: "", password: "" })
+      await axios.post("http://localhost:8080/auth/register", form, { timeout: 100 });
+      setMessage("Регистрация успешна!");
+      setForm({ name: "", email: "", password: "" });
+      if (onSuccess) onSuccess();
     } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setMessage(`${err.response.data.error}`)
-      } else {
-        setMessage("Ошибка")
-      }
+      setMessage(err.response?.data?.error || "Ошибка");
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input
-        name="name"
-        value={form.name}
-        onChange={handleChange}
-        placeholder="Имя"
-        required
-      />
-      <input
-        name="email"
-        type="email"
-        value={form.email}
-        onChange={handleChange}
-        placeholder="Почта"
-        required
-      />
-      <input
-        name="password"
-        type="password"
-        value={form.password}
-        onChange={handleChange}
-        placeholder="Пароль"
-        required
-      />
-      <button type="submit">Зарегистрироваться</button>
-      {message && <p>{message}</p>}
-    </form>
-  );
+  return {
+    form,
+    message,
+    handleChange,
+    handleSubmit,
+  };
 }

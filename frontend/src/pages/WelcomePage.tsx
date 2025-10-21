@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ButtonClick, WelcomPageSettings } from "../assets/styles";
+import { ButtonClick, WelcomPageCSS } from "../assets/styles";
 
 
 export default function WelcomePage() {
@@ -8,7 +8,7 @@ export default function WelcomePage() {
     <div>
       <div className="bg-[#231136] p-55" >
 
-        <section className={WelcomPageSettings}>
+        <section className={WelcomPageCSS}>
           <div className="text-9xl font-[Sofia-Sans]">
             <span className="text-[#B39BE3]">Fini</span>
             <span className="text-fuchsia-50">boot</span>
