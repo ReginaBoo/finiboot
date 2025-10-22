@@ -5,9 +5,9 @@ services:
     container_name: auth-db
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_AUTH_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_AUTH_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_AUTH_DB}
 
     ports:
       - "5433:5432"
@@ -22,9 +22,9 @@ services:
     container_name: bonds-db
     restart: always
     environment:
-      POSTGRES_USER: bonds_user
-      POSTGRES_PASSWORD: bonds_pass
-      POSTGRES_DB: bonds_db
+      POSTGRES_USER: ${POSTGRES_BONDS_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_BONDS_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_BONDS_DB}
     ports:
       - "5434:5432"
     volumes:
@@ -38,9 +38,9 @@ services:
     container_name: portfolio-db
     restart: always
     environment:
-      POSTGRES_USER: portfolio_user
-      POSTGRES_PASSWORD: portfolio_pass
-      POSTGRES_DB: portfolio_db
+      POSTGRES_USER: ${POSTGRES_PORTFOLIO_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PORTFOLIO_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_PORTFOLIO_DB}
     ports:
       - "5435:5432"
     volumes:
@@ -57,14 +57,15 @@ services:
     environment:
       DB_HOST: auth-db
       DB_PORT: 5432
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_AUTH_USER}
+      DB_PASSWORD: ${POSTGRES_AUTH_PASSWORD}
+      DB_NAME: ${POSTGRES_AUTH_DB}
 
     ports:
       - "8001:8001"
     networks:
       - app-network
+
   # === BONDS SERVICE ===
   bonds-service:
     build: ./bonds-service
@@ -74,13 +75,14 @@ services:
     environment:
       DB_HOST: bonds-db
       DB_PORT: 5432
-      DB_USER: bonds_user
-      DB_PASSWORD: bonds_pass
-      DB_NAME: bonds_db
+      DB_USER: ${POSTGRES_BONDS_USER}
+      DB_PASSWORD: ${POSTGRES_BONDS_PASSWORD}
+      DB_NAME: ${POSTGRES_BONDS_DB}
     ports:
       - "8002:8002"
     networks:
       - app-network
+
   # === PORTFOLIO SERVICE ===
   portfolio-service:
     build: ./portfolio-service
@@ -90,13 +92,14 @@ services:
     environment:
       DB_HOST: portfolio-db
       DB_PORT: 5432
-      DB_USER: portfolio_user
-      DB_PASSWORD: portfolio_pass
-      DB_NAME: portfolio_db
+      DB_USER: ${POSTGRES_PORTFOLIO_USER}
+      DB_PASSWORD: ${POSTGRES_PORTFOLIO_PASSWORD}
+      DB_NAME: ${POSTGRES_PORTFOLIO_DB}
     ports:
       - "8003:8003"
     networks:
       - app-network
+
   # === API GATEWAY ===
   gateway:
     build: ./gateway

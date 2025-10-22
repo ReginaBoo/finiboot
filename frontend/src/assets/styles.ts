@@ -28,9 +28,7 @@ export const ButtonClick = `
   hover:scale-[1.03]
 `;
 
-
-
-export const RegisterPageCSS = `
+export const RegisterLoginPageCSS = `
   flex flex-col items-center justify-center 
   min-h-screen bg-gray-50 p-8  text-[#482A69]
   text-[Sofia-Sans] font-semibold

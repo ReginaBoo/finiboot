@@ -1,15 +1,18 @@
-// RegisterPage.tsx
 import RegisterForm from "../components/forms/RegisterForm";
-import { RegisterPageCSS, FormCSS, ButtonRegisterTelegramm, ButtonDisabled, ButtonRegisterSubmit, Field } from "../assets/styles";
-import { Link } from "react-router-dom";
+import { RegisterLoginPageCSS, FormCSS, ButtonRegisterTelegramm, ButtonDisabled, ButtonRegisterSubmit, Field } from "../assets/styles";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
+
   const { form, message, handleChange, handleSubmit } = RegisterForm({
-    onSuccess: () => console.log("Пользователь зарегистрирован")
+    onSuccess: () => {
+      console.log("Пользователь зарегистрирован");
+      navigate("/login");
+    },
   });
-  //""
   return (
-    <div className={RegisterPageCSS}>
+    <div className={RegisterLoginPageCSS}>
       <div className={FormCSS}>
         <h1 className="text-3xl mb-1 text-center">Добро пожаловать!</h1>
         <p className=" text-sm mb-5 text-center ">Пожалуйста, зарегистрируйтесь</p>
@@ -21,7 +24,6 @@ export default function RegisterPage() {
           onSubmit={handleSubmit}
           className="flex flex-col gap-5 w-full text-[#482A69] text-md"
         >
-
           <input
             name="name"
             value={form.name}
@@ -48,7 +50,6 @@ export default function RegisterPage() {
             required
             className={Field}
           />
-
           <button
             type="submit"
             className={!form.name || !form.email || !form.password

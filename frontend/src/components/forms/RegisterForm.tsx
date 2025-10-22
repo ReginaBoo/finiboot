@@ -1,9 +1,8 @@
-// RegisterForm.tsx
 import { useState } from "react";
 import axios from "axios";
 
 interface FormProps {
-  onSuccess?: () => void; // можно передавать колбэк при успешной регистрации
+  onSuccess?: () => void;
 }
 
 export default function RegisterForm({ onSuccess }: FormProps) {
