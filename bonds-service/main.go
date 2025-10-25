@@ -5,6 +5,8 @@ import (
 	"bonds-service/internal/db"
 	"bonds-service/internal/handlers"
 	"bonds-service/internal/middleware"
+	"bonds-service/internal/services"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +19,19 @@ func main() {
 	defer pool.Close()
 
 	db.InitDB(dsn)
+
+	// Инициализируем сервис синхронизации
+	syncService := services.NewSyncService(db.DB)
+
+	// Синхронизация при старте, если нужно
+	if syncService.ShouldSyncOnStart() {
+		log.Println("Starting initial bonds synchronization...")
+		if err := syncService.SyncBondsFromTbank(); err != nil {
+			log.Printf("Initial sync failed: %v", err)
+		} else {
+			log.Println("Initial bonds synchronization completed")
+		}
+	}
 
 	router := gin.Default()
 

@@ -9,12 +9,14 @@ import (
 )
 
 type Config struct {
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-	AppPort    string
+	DBHost       string
+	DBPort       string
+	DBUser       string
+	DBPassword   string
+	DBName       string
+	AppPort      string
+	TinkoffToken string
+	SyncOnStart  bool
 }
 
 func LoadConfig() *Config {
@@ -24,12 +26,14 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		DBHost:     os.Getenv("DB_HOST"),
-		DBUser:     os.Getenv("DB_USER"),
-		DBPassword: os.Getenv("DB_PASSWORD"),
-		DBPort:     os.Getenv("DB_PORT"),
-		DBName:     os.Getenv("DB_NAME"),
-		AppPort:    os.Getenv("APP_PORT"),
+		DBHost:       os.Getenv("DB_HOST"),
+		DBUser:       os.Getenv("DB_USER"),
+		DBPassword:   os.Getenv("DB_PASSWORD"),
+		DBPort:       os.Getenv("DB_PORT"),
+		DBName:       os.Getenv("DB_NAME"),
+		AppPort:      os.Getenv("APP_PORT"),
+		TinkoffToken: os.Getenv("TINKOFF_API_TOKEN"),
+		SyncOnStart:  os.Getenv("SYNC_ON_START") == "true",
 	}
 }
 

@@ -6,8 +6,10 @@ interface Bond {
   id: number;
   name: string;
   issuer: string;
+  face_value: number;
   coupon_rate: number;
-  price: number;
+  coupon_value: number;
+  issue_date: string;
   maturity_date: string;
 }
 
@@ -40,8 +42,10 @@ export default function BondsPage() {
             <li key={b.id} className="border-b border-gray-300 pb-2">
               <p className="text-xl">{b.name}</p>
               <p className="text-sm text-gray-500">{b.issuer}</p>
-              <p>Купон: {b.coupon_rate}% — Цена: {b.price}</p>
+              <p>Номинал: {b.face_value}</p>
+              <p>Купон: {b.coupon_rate}% — Цена: {b.coupon_value}</p>
               <p>Погашение: {new Date(b.maturity_date).toLocaleDateString()}</p>
+              <p>Дата выпуска: {new Date(b.issue_date).toLocaleDateString()}</p>
             </li>
           ))}
         </ul>
