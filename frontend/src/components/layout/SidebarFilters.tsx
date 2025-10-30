@@ -1,11 +1,16 @@
-export function SidebarFilters() {
+// components/layout/SidebarFilters.tsx
+interface SidebarFiltersProps {
+  isCollapsed: boolean;
+}
+
+export function SidebarFilters({ isCollapsed }: SidebarFiltersProps) {
   return (
-    <div className="flex p-5 text-fuchsia-50">
-      <div className="flex flex-row gap-8 items-baseline w-full">
-        <span className="font-semibold text-fuchsia-50 text-xl">Фильтры</span>
-        <div className="flex flex-row gap-3 ml-auto ">
-          <span className="font-semibold text-xs text-white/30">Применить</span>
-          <span className="font-semibold text-xs text-white/30">Сбросить</span>
+    <div className="flex flex-col h-full">
+      <div className="flex p-6 text-fuchsia-50">
+        <div className="flex flex-row gap-8 items-baseline w-full">
+          {!isCollapsed && (
+            <span className="text-center font-semibold text-fuchsia-50 text-xl">Фильтры</span>
+          )}
         </div>
       </div>
     </div>

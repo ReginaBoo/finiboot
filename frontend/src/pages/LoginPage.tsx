@@ -1,12 +1,16 @@
-import LoginForm from "../components/forms/LoginForm";
 import { RegisterLoginPageCSS, FormCSS, ButtonRegisterTelegramm, ButtonDisabled, ButtonRegisterSubmit, Field } from "../assets/styles";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthForm } from "../hooks/useAuthForm";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { form, message, handleChange, handleSubmit } = LoginForm({
+  const { form, message, handleChange, handleSubmit, isLoading, isFormValid } = useAuthForm({
+    mode: 'login',
     onSuccess: () => { navigate("/bonds"); }
   });
+
+  const loginForm = form as { email: string; password: string };
+
 
   return (
     <div className={RegisterLoginPageCSS}>
@@ -23,29 +27,29 @@ export default function LoginPage() {
           <input
             name="email"
             type="email"
-            value={form.email}
+            value={loginForm.email}
             onChange={handleChange}
             placeholder="Почта"
             required
+            disabled={isLoading}
             className={Field}
           />
           <input
             name="password"
             type="password"
-            value={form.password}
+            value={loginForm.password}
             onChange={handleChange}
             placeholder="Пароль"
             required
+            disabled={isLoading}
             className={Field}
           />
           <button
             type="submit"
-            className={!form.email || !form.password
-              ? ButtonDisabled
-              : ButtonRegisterSubmit}
-            disabled={!form.email || !form.password}
+            disabled={!isFormValid || isLoading}
+            className={!isFormValid || isLoading ? ButtonDisabled : ButtonRegisterSubmit}
           >
-            Войти
+            {isLoading ? 'Вход...' : 'Войти'}
           </button>
 
           {message && <p className="text-center mt-2">{message}</p>}

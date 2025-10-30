@@ -10,6 +10,10 @@ import (
 func Forward(ctx *gin.Context, targetBase string) {
 	target := targetBase + ctx.Param("path")
 
+	if ctx.Request.URL.RawQuery != "" {
+		target += "?" + ctx.Request.URL.RawQuery
+	}
+
 	req, _ := http.NewRequest(ctx.Request.Method, target, ctx.Request.Body)
 	req.Header = ctx.Request.Header
 
@@ -20,10 +24,16 @@ func Forward(ctx *gin.Context, targetBase string) {
 
 	}
 	defer resp.Body.Close()
+
+	for key, values := range resp.Header {
+		for _, value := range values {
+			ctx.Header(key, value)
+		}
+	}
+
 	ctx.Status(resp.StatusCode)
-	ctx.Header("Content-Type", resp.Header.Get("Content-Type"))
-	ctx.Stream(func(w io.Writer) bool {
-		_, _ = io.Copy(w, resp.Body)
-		return false
-	})
+	_, err = io.Copy(ctx.Writer, resp.Body)
+	if err != nil {
+		return
+	}
 }

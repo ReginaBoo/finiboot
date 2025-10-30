@@ -48,7 +48,6 @@ export default function WelcomePage() {
           <br />
           <span className="text-[#B39BE3] font-medium">Backend:</span> Go (Gin, Gorm, PostgreSQL, Docker)
           <br />
-          <span className="text-[#B39BE3] font-medium">Gateway:</span> API-шлюз для микросервисов
         </p>
 
         <h3 className="text-xl font-semibold mb-5">Минимальный функционал MVP</h3>

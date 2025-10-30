@@ -1,16 +1,18 @@
-import RegisterForm from "../components/forms/RegisterForm";
+
 import { RegisterLoginPageCSS, FormCSS, ButtonRegisterTelegramm, ButtonDisabled, ButtonRegisterSubmit, Field } from "../assets/styles";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthForm } from "../hooks/useAuthForm";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
 
-  const { form, message, handleChange, handleSubmit } = RegisterForm({
-    onSuccess: () => {
-      console.log("Пользователь зарегистрирован");
-      navigate("/login");
-    },
+  const { form, message, isLoading, handleChange, handleSubmit, isFormValid } = useAuthForm({
+    mode: 'register',
+    onSuccess: () => navigate("/login")
   });
+
+  const registerForm = form as { name: string; email: string; password: string };
+
   return (
     <div className={RegisterLoginPageCSS}>
       <div className={FormCSS}>
@@ -26,38 +28,39 @@ export default function RegisterPage() {
         >
           <input
             name="name"
-            value={form.name}
+            value={registerForm.name}
             onChange={handleChange}
             placeholder="Имя"
             required
+            disabled={isLoading}
             className={Field}
           />
           <input
             name="email"
             type="email"
-            value={form.email}
+            value={registerForm.email}
             onChange={handleChange}
             placeholder="Почта"
             required
+            disabled={isLoading}
             className={Field}
           />
           <input
             name="password"
             type="password"
-            value={form.password}
+            value={registerForm.password}
             onChange={handleChange}
             placeholder="Пароль"
             required
+            disabled={isLoading}
             className={Field}
           />
           <button
             type="submit"
-            className={!form.name || !form.email || !form.password
-              ? ButtonDisabled
-              : ButtonRegisterSubmit}
-            disabled={!form.name || !form.email || !form.password}
+            disabled={!isFormValid || isLoading}
+            className={!isFormValid || isLoading ? ButtonDisabled : ButtonRegisterSubmit}
           >
-            Зарегистрироваться
+            {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
           </button>
 
           {message && <p className="text-center mt-2">{message}</p>}
