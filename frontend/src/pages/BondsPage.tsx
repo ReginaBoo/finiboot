@@ -1,7 +1,6 @@
 import { AppLayout } from "../components/layout/AppLayout";
 import { useBonds } from "../hooks/useBonds";
 import { BondsTableHeader } from "../components/bonds/BondsTableHeader";
-import { BondSkeleton } from "../components/bonds/BondSkeleton";
 import { BondRow } from "../components/bonds/BondRow";
 import { Pagination } from "../components/bonds/Pagination";
 
@@ -37,15 +36,11 @@ export default function BondsPage() {
 
           {/* Список облигаций */}
           <div className="divide-y divide-gray-100">
-            {isLoading ? (
-              Array.from({ length: 7 }).map((_, index) => (
-                <BondSkeleton key={index} />
-              ))
-            ) : (
+            {
               bonds.map(bond => (
                 <BondRow key={bond.id} bond={bond} />
               ))
-            )}
+            }
           </div>
         </div>
 

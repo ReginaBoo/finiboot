@@ -9,21 +9,31 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
-  const [isNavHovered, setIsNavHovered] = useState(false);
+  const [isNavExpanded, setIsNavExpanded] = useState<boolean>(() => {
+    const saved = localStorage.getItem("isNavExpanded");
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  const toggleNav = () => {
+    const newState = !isNavExpanded;
+    setIsNavExpanded(newState);
+    localStorage.setItem("isNavExpanded", JSON.stringify(newState));
+  };
+
+
 
   return (
     <div className="flex h-screen w-screen">
       {/* Левое главное меню */}
-      <div
-        className="relative h-full"
-        onMouseEnter={() => setIsNavHovered(true)}
-        onMouseLeave={() => setIsNavHovered(false)}
-      >
+      <div className="relative h-full">
         <aside className={`
-          ${isNavHovered ? 'min-w-[150px] max-w-[150px]' : 'min-w-[50px] max-w-[50px]'} 
+          ${isNavExpanded ? 'min-w-[150px] max-w-[150px]' : 'min-w-[50px] max-w-[50px]'} 
           bg-[#331B4C] text-white flex flex-col transition-all duration-300 h-full
         `}>
-          <SidebarNavigation isExpanded={isNavHovered} />
+          <SidebarNavigation
+            isExpanded={isNavExpanded}
+            onLogoClick={toggleNav}
+          />
         </aside>
       </div>
 
