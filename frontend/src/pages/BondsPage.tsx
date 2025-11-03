@@ -1,10 +1,14 @@
 import { AppLayout } from "../components/layout/AppLayout";
 import { useBonds } from "../hooks/useBonds";
+import { useSearchBonds } from "../hooks/useSearchBonds";
 import { BondsTableHeader } from "../components/bonds/BondsTableHeader";
 import { BondRow } from "../components/bonds/BondRow";
+import { SearchBar } from "../components/bonds/SearchBar";
 import { Pagination } from "../components/bonds/Pagination";
 
 export default function BondsPage() {
+
+
   const {
     bonds,
     currentPage,
@@ -14,6 +18,9 @@ export default function BondsPage() {
     handlePreviousPage,
     handleNextPage
   } = useBonds({ pageSize: 7 });
+
+  const { query, setQuery, results, isLoading: isSearchLoading } = useSearchBonds();
+  const displayedBonds = query.trim() ? results : bonds;
 
   if (error) {
     return (
@@ -28,7 +35,8 @@ export default function BondsPage() {
   return (
     <AppLayout>
       <div className="p-8 text-[#482A69]">
-        <h1 className="text-2xl font-semibold mb-6">Список облигаций</h1>
+        {/* Поиск */}
+        <SearchBar query={query} setQuery={setQuery} isLoading={isSearchLoading} />
 
         {/* Таблица облигаций */}
         <div className="bg-white rounded-lg shadow-sm">
@@ -36,22 +44,20 @@ export default function BondsPage() {
 
           {/* Список облигаций */}
           <div className="divide-y divide-gray-100">
-            {
-              bonds.map(bond => (
-                <BondRow key={bond.id} bond={bond} />
-              ))
-            }
+            {displayedBonds.map((bond) => (
+              <BondRow key={bond.bond_id} bond={bond} />
+            ))}
           </div>
         </div>
 
         {/* Пагинация */}
-        <Pagination
+        {!query.trim() && (<Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPrevious={handlePreviousPage}
           onNext={handleNextPage}
           isLoading={isLoading}
-        />
+        />)}
       </div>
     </AppLayout>
   );

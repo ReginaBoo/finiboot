@@ -46,7 +46,7 @@ func AllBonds(c *gin.Context) {
 
 	var bonds []models.Bond
 	offset := page * size
-	if err := db.DB.Offset(offset).Limit(size).Find(&bonds).Error; err != nil {
+	if err := db.DB.Preload("Coupons").Offset(offset).Limit(size).Find(&bonds).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error when receiving the bonds"})
 		return
 	}

@@ -16,7 +16,7 @@ export function SidebarNavigation({ isExpanded, onLogoClick }: SidebarNavigation
 
 
   return (
-    <nav className="flex flex-col gap-4 h-full">
+    <nav className="flex flex-col gap-2 h-full">
       <button
         onClick={onLogoClick}
         className="text-2xl font-[Sofia-Sans] text-center py-6 flex items-center justify-center hover:bg-[#371b54] transition-colors w-full"
@@ -38,8 +38,8 @@ export function SidebarNavigation({ isExpanded, onLogoClick }: SidebarNavigation
       <div className="flex-1 flex flex-col">
         <button
           onClick={() => handleNavigation('/bonds')}
-          className={`border-l-2 mb-4 py-3 px-4 text-left hover:bg-gradient-to-r from-[#9775B9] to-[#331B4C]  hover:border-l-[#EEDEFE] transition ${isExpanded ? ' mb-4 px-4' : ''
-            } ${isActive('/bonds') ? 'bg-gradient-to-r mb-4 from-[#9775B9] to-[#331B4C] font-bold  border-l-[#EEDEFE]' : 'border-transparent mb-4'
+          className={`border-l-2 py-3 px-4 text-left hover:bg-gradient-to-r from-[#9775B9] to-[#331B4C]  hover:border-l-[#EEDEFE] transition ${isExpanded ? '  px-4' : ''
+            } ${isActive('/bonds') ? 'bg-gradient-to-r from-[#9775B9] to-[#331B4C] font-bold  border-l-[#EEDEFE]' : 'border-transparent '
             }`}
         >
           {isExpanded ? "Облигации" : "О"}
@@ -47,8 +47,8 @@ export function SidebarNavigation({ isExpanded, onLogoClick }: SidebarNavigation
 
         <button
           onClick={() => handleNavigation('/portfolio')}
-          className={`border-l-2 py-3 px-4 text-left hover:bg-gradient-to-r from-[#9775B9] to-[#331B4C]  hover:border-l-[#EEDEFE] transition mb-4 ${isExpanded ? 'px-4 mb-4' : ''
-            } ${isActive('/portfolio') ? ' mb-4 bg-gradient-to-r from-[#9775B9] to-[#331B4C] font-bold  border-l-[#EEDEFE]' : 'border-transparent mb-4'
+          className={`border-l-2 py-3 px-4 text-left hover:bg-gradient-to-r from-[#9775B9] to-[#331B4C]  hover:border-l-[#EEDEFE] transition  ${isExpanded ? 'px-4 ' : ''
+            } ${isActive('/portfolio') ? ' mb-4 bg-gradient-to-r from-[#9775B9] to-[#331B4C] font-bold  border-l-[#EEDEFE]' : 'border-transparent'
             }`}
         >
           {isExpanded ? "Портфель" : "П"}

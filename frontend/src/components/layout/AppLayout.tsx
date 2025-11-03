@@ -20,8 +20,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     localStorage.setItem("isNavExpanded", JSON.stringify(newState));
   };
 
-
-
   return (
     <div className="flex h-screen w-screen">
       {/* Левое главное меню */}

@@ -1,11 +1,13 @@
 export interface Bond {
-  id: number;
+  bond_id: number;
   name: string;
-  issuer: string;
-  face_value: number;
-  coupon_rate: number;
-  coupon_value: number;
-  issue_date: string;
+  isin: string;
+  ticker: string;
+  nominal: number;
+  coupon_quantity_per_year: number;
+  sector: string;
+  placement_date: string;
+  perpertual_flag: boolean;
   maturity_date: string;
 }
 

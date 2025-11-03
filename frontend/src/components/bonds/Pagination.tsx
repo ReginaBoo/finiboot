@@ -1,6 +1,4 @@
-// components/bonds/Pagination.tsx
-
-import { useState, useEffect } from "react";
+import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 
 interface PaginationProps {
   currentPage: number;
@@ -17,34 +15,11 @@ export const Pagination = ({
   onNext,
   isLoading = false
 }: PaginationProps) => {
-  const [showLoading, setShowLoading] = useState(false);
-
-  useEffect(() => {
-    let showTimer: ReturnType<typeof setTimeout> | null = null;
-    let hideTimer: ReturnType<typeof setTimeout> | null = null;
-
-    if (isLoading) {
-      showTimer = setTimeout(() => {
-        setShowLoading(true);
-      }, 500);
-    } else {
-      hideTimer = setTimeout(() => {
-        setShowLoading(false);
-      }, 300);
-    }
-
-    return () => {
-      if (showTimer) clearTimeout(showTimer);
-      if (hideTimer) clearTimeout(hideTimer);
-    };
-  }, [isLoading]);
-
+  const showLoading = useDelayedLoading(isLoading, 500, 300); // пример задержки
 
   const isPreviousDisabled = currentPage === 0 || showLoading;
   const isNextDisabled = currentPage >= totalPages - 1 || showLoading;
 
-
-  // Предотвращаем множественные клики во время загрузки
   const handlePrevious = () => {
     if (!isPreviousDisabled) {
       onPrevious();

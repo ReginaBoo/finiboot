@@ -1,6 +1,6 @@
 // services/bondsService.ts
 import axios from 'axios';
-import type { BondsResponse } from '../types/bond';
+import type { Bond, BondsResponse } from '../types/bond';
 
 const API_BASE_URL = 'http://localhost:8080/bonds';
 
@@ -17,5 +17,17 @@ export const bondsService = {
       }
     });
     return response.data;
+  },
+
+  async searchBonds(q: string): Promise<Bond[]> {
+    const token = localStorage.getItem('accessToken');
+    const response = await axios.get(`${API_BASE_URL}/search`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: { q }
+    });
+    return response.data;
   }
 };
+

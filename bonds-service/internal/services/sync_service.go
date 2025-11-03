@@ -12,7 +12,6 @@ import (
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
 
@@ -26,7 +25,6 @@ func NewSyncService(db *gorm.DB) *SyncService {
 	}
 }
 
-// ShouldSyncOnStart проверяет, нужно ли синхронизировать при старте
 func (s *SyncService) ShouldSyncOnStart() bool {
 	syncOnStart := os.Getenv("SYNC_ON_START")
 	return syncOnStart == "true"
@@ -75,10 +73,19 @@ func (s *SyncService) SyncBondsFromTbank() error {
 
 	successCount := 0
 	for _, bond := range bonds {
+
+		if moneyToFloat(bond.Nominal) == 0 || bond.Currency != "rub" {
+			continue
+		}
+
 		if err := s.createOrUpdateBond(bond); err != nil {
 			log.Printf("Failed to sync bond %s: %v", bond.GetIsin(), err)
 			continue
 		}
+		if err := s.syncCouponsForBond(instrumentsService, bond); err != nil {
+			log.Printf("Failed to sync coupons for bond %s: %v", bond.Figi, err)
+		}
+
 		successCount++
 	}
 	var totalCount int64
@@ -90,44 +97,110 @@ func (s *SyncService) SyncBondsFromTbank() error {
 	return nil
 }
 
-func (s *SyncService) createOrUpdateBond(bond *pb.Bond) error {
+func (s *SyncService) createOrUpdateBond(pbBond *pb.Bond) error {
 
-	appBond := models.Bond{
-		ISIN:            bond.Isin,
-		Name:            bond.Name,
-		Ticker:          bond.GetTicker(),
-		FaceValue:       float64(bond.GetNominal().GetUnits()) + float64(bond.GetNominal().GetNano())/1e9,
-		Currency:        bond.Currency,
-		CouponFrequency: int(bond.GetCouponQuantityPerYear()),
-		MaturityDate:    s.convertStateRegDate(bond.MaturityDate),
-		IssueDate:       s.convertStateRegDate(bond.StateRegDate),
-		Issuer:          bond.GetSector(),
-		Type:            s.determineBondType(bond),
-		Available:       bond.GetBuyAvailableFlag() && bond.GetSellAvailableFlag(),
+	var maturityDate, placementDate, stateRegDate *time.Time
+
+	if pbBond.MaturityDate != nil {
+		t := pbBond.MaturityDate.AsTime()
+		maturityDate = &t
+	}
+	if pbBond.PlacementDate != nil {
+		t := pbBond.PlacementDate.AsTime()
+		placementDate = &t
+	}
+	if pbBond.StateRegDate != nil {
+		t := pbBond.StateRegDate.AsTime()
+		stateRegDate = &t
 	}
 
-	return s.db.Where(models.Bond{ISIN: appBond.ISIN}).FirstOrCreate(&appBond).Error
+	bond := models.Bond{
+		FIGI:                  pbBond.Figi,
+		ISIN:                  pbBond.Isin,
+		Ticker:                pbBond.Ticker,
+		Name:                  pbBond.Name,
+		Currency:              pbBond.Currency,
+		Nominal:               moneyToFloat(pbBond.Nominal),
+		InitialNominal:        moneyToFloat(pbBond.InitialNominal),
+		CouponQuantityPerYear: int(pbBond.CouponQuantityPerYear),
+		FloatingCouponFlag:    pbBond.FloatingCouponFlag,
+		PerpetualFlag:         pbBond.PerpetualFlag,
+		AmortizationFlag:      pbBond.AmortizationFlag,
+		BuyAvailableFlag:      pbBond.BuyAvailableFlag,
+		SellAvailableFlag:     pbBond.SellAvailableFlag,
+		MaturityDate:          maturityDate,
+		PlacementDate:         placementDate,
+		StateRegDate:          stateRegDate,
+		Sector:                pbBond.Sector,
+		CountryOfRiskName:     pbBond.CountryOfRiskName,
+		BondType:              pbBond.BondType.String(),
+		UpdatedAt:             time.Now(),
+	}
+
+	// Проверяем, есть ли такая облигация
+	var existing models.Bond
+
+	if err := s.db.Where("figi = ?", bond.FIGI).Attrs(bond).FirstOrCreate(&existing).Error; err != nil {
+		return fmt.Errorf("ошибка при сохранении облигации %s: %v", bond.FIGI, err)
+	}
+
+	return nil
 }
 
-func (s *SyncService) determineBondType(bond *pb.Bond) string {
-	ticker := bond.GetTicker()
-	country := bond.GetCountryOfRisk()
+func moneyToFloat(m *pb.MoneyValue) float64 {
+	if m == nil {
+		return 0
+	}
+	return float64(m.Units) + float64(m.Nano)/1e9
+}
 
-	if country == "RU" {
-		if len(ticker) >= 2 && (ticker[:2] == "SU" || ticker[:2] == "RU") {
-			return "government" // ОФЗ
-		} else if len(ticker) >= 1 && ticker[0] == 'X' {
-			return "municipal" // Муниципальные
+func (s *SyncService) syncCouponsForBond(instrumentsService *investgo.InstrumentsServiceClient, pbBond *pb.Bond) error {
+	log.Printf("Синхронизация купонов для облигации: %s (%s)", pbBond.Name, pbBond.Figi)
+
+	// Устанавливаем широкий диапазон дат, чтобы точно получить все купоны
+	from := time.Unix(0, 0)            // с самого начала времён
+	to := time.Now().AddDate(30, 0, 0) // +20 лет вперёд
+
+	// Получаем купоны из API
+	resp, err := instrumentsService.GetBondCoupons(pbBond.Figi, from, to)
+	if err != nil {
+		return fmt.Errorf("не удалось получить купоны для %s: %v", pbBond.Figi, err)
+	}
+
+	if resp.GetBondCouponsResponse == nil || len(resp.Events) == 0 {
+		log.Printf("Нет купонов для %s (%s)", pbBond.Name, pbBond.Figi)
+		return nil
+	}
+
+	for _, event := range resp.Events {
+		coupon := models.Coupon{
+			BondFIGI:     pbBond.Figi,
+			CouponNumber: event.CouponNumber,
+			CouponDate:   event.CouponDate.AsTime(),
+			PayOneBond:   moneyToFloat(event.PayOneBond),
+			CouponType:   event.CouponType.String(),
 		}
-	}
-	return "corporate" // Корпоративные
-}
 
-func (s *SyncService) convertStateRegDate(ts *timestamppb.Timestamp) *time.Time {
-	if ts == nil {
-		return nil // Если указатель nil, возвращаем nil
+		if event.CouponStartDate != nil {
+			t := event.CouponStartDate.AsTime()
+			coupon.CouponStart = &t
+		}
+		if event.CouponEndDate != nil {
+			t := event.CouponEndDate.AsTime()
+			coupon.CouponEnd = &t
+		}
+		coupon.CouponPeriod = event.CouponPeriod
+
+		// Проверяем, существует ли уже этот купон
+		// Создаём, если ещё нет
+		var existing models.Coupon
+		if err := s.db.Where("bond_figi = ? AND coupon_number = ?", coupon.BondFIGI, coupon.CouponNumber).
+			Attrs(coupon).FirstOrCreate(&existing).Error; err != nil {
+			return fmt.Errorf("ошибка при сохранении купона %s #%d: %v", coupon.BondFIGI, coupon.CouponNumber, err)
+		}
+
+		log.Printf(" Добавлен купон #%d для %s", coupon.CouponNumber, coupon.BondFIGI)
 	}
 
-	date := ts.AsTime()
-	return &date
+	return nil
 }
