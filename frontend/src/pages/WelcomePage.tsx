@@ -5,7 +5,7 @@ import { ButtonClick, WelcomPageCSS } from "../assets/styles";
 export default function WelcomePage() {
   const navigate = useNavigate();
   return (
-    <div>
+    <div className="font-sofia">
       <div className="bg-[#231136] p-55" >
 
         <section className={WelcomPageCSS}>

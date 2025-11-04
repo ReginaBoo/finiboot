@@ -17,7 +17,7 @@ export default function BondsPage() {
     error,
     handlePreviousPage,
     handleNextPage
-  } = useBonds({ pageSize: 7 });
+  } = useBonds({ pageSize: 10 });
 
   const { query, setQuery, results, isLoading: isSearchLoading } = useSearchBonds();
   const displayedBonds = query.trim() ? results : bonds;
@@ -39,7 +39,7 @@ export default function BondsPage() {
         <SearchBar query={query} setQuery={setQuery} isLoading={isSearchLoading} />
 
         {/* Таблица облигаций */}
-        <div className="bg-white rounded-lg shadow-sm">
+        <div className="">
           <BondsTableHeader />
 
           {/* Список облигаций */}
