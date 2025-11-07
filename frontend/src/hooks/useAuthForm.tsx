@@ -1,4 +1,3 @@
-// hooks/useAuthForm.ts
 import { useState } from 'react';
 import { authService } from '../services/authService';
 import type { LoginData, RegisterData } from '../types/auth';

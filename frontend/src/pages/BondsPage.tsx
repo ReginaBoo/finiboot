@@ -8,7 +8,6 @@ import { Pagination } from "../components/bonds/Pagination";
 
 export default function BondsPage() {
 
-
   const {
     bonds,
     currentPage,
@@ -17,7 +16,7 @@ export default function BondsPage() {
     error,
     handlePreviousPage,
     handleNextPage
-  } = useBonds({ pageSize: 10 });
+  } = useBonds({ pageSize: 7 });
 
   const { query, setQuery, results, isLoading: isSearchLoading } = useSearchBonds();
   const displayedBonds = query.trim() ? results : bonds;

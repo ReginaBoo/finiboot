@@ -30,7 +30,7 @@ export const useBonds = ({
       try {
         const response = await bondsService.getBonds(currentPage, pageSize);
 
-        setCachedBonds(response.content); // сохраняем данные в кэш
+        setCachedBonds(response.content);
         setBonds(response.content);
         setTotalPages(response.total_pages);
       } catch (err: any) {

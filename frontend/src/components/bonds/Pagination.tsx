@@ -15,7 +15,8 @@ export const Pagination = ({
   onNext,
   isLoading = false
 }: PaginationProps) => {
-  const showLoading = useDelayedLoading(isLoading, 500, 300); // пример задержки
+
+  const showLoading = useDelayedLoading(isLoading, 500, 300);
 
   const isPreviousDisabled = currentPage === 0 || showLoading;
   const isNextDisabled = currentPage >= totalPages - 1 || showLoading;
