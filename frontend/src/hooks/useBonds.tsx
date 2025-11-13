@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { bondsService } from '../services/bondsService';
+import { bondsService } from '../api/bondsService';
 import type { Bond } from '../types/bond';
 
 interface UseBondsProps {

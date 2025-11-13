@@ -99,7 +99,7 @@ export const BondRow = ({ bond }: BondRowProps) => {
             }}
             className="text-[#482A69] transition p-2 cursor-pointer hover:text-[#231136]"
           >
-            {isOpen ? <HiOutlineChevronDoubleUp size={20} /> : <HiOutlineChevronDoubleDown size={20} />}
+            {isOpen ? <HiOutlineChevronDoubleDown size={20} /> : <HiOutlineChevronDoubleUp size={20} />}
           </button>
         </div>
       </div>

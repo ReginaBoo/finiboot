@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { authService } from '../services/authService';
+import { authService } from '../api/authService';
 import type { LoginData, RegisterData } from '../types/auth';
+import { setTokens } from "../api/token";
 
 type AuthMode = 'login' | 'register';
 
@@ -36,8 +37,11 @@ export const useAuthForm = ({ mode, onSuccess }: UseAuthFormProps) => {
         onSuccess?.();
       } else {
         const { access_token, refresh_token } = await authService.login(form as LoginData);
+
         localStorage.setItem('accessToken', access_token);
         localStorage.setItem('refreshToken', refresh_token);
+
+        setTokens(access_token, refresh_token)
         onSuccess?.();
       }
 

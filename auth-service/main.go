@@ -21,6 +21,7 @@ func main() {
 
 	router.POST("/register", handlers.Register)
 	router.POST("/login", handlers.Login)
+	router.POST("/refresh", handlers.RefreshToken)
 
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"message": "Auth service is running"})
