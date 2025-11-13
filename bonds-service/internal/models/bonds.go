@@ -13,8 +13,8 @@ type Bond struct {
 	InitialNominal        float64    `json:"initial_nominal"`
 	CouponQuantityPerYear int        `json:"coupon_quantity_per_year"`
 	FloatingCouponFlag    bool       `json:"floating_coupon_flag"`
-	PerpetualFlag         bool       `json:"perpertual_flag"`
-	AmortizationFlag      bool       `json:"amortisation_flag"`
+	PerpetualFlag         bool       `json:"perpetual_flag"`
+	AmortizationFlag      bool       `json:"amortization_flag"`
 	BuyAvailableFlag      bool       `json:"buy_available_flag"`
 	SellAvailableFlag     bool       `json:"sell_available_flag"`
 	MaturityDate          *time.Time `json:"maturity_date"`

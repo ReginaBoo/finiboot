@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { SidebarNavigation } from "./SidebarNavigation";
 import { SidebarFilters } from "./SidebarFilters";
+import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi2";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -50,8 +51,10 @@ export function AppLayout({ children }: AppLayoutProps) {
 
         {/* Кнопка сворачивания фильтров */}
         <button
+
           onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
-          className="absolute -right-3 top-7 w-6 h-6 bg-[#482A69] rounded-full border-2 border-white shadow-lg grid place-items-center text-white text-sm pt-0  hover:bg-[#5a3480] transition-colors z-10 ">
+          className="absolute cursor-pointer -right-3 top-7 w-6 h-6 bg-[#482A69] rounded-full border-2 border-white shadow-lg grid place-items-center text-white text-sm pt-0  hover:bg-[#5a3480] transition-colors z-10 ">
+          {isFiltersCollapsed ? < HiOutlineChevronRight /> : < HiOutlineChevronLeft />}
         </button>
       </div>
 

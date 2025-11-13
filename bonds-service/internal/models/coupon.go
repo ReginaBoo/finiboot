@@ -11,7 +11,7 @@ type Coupon struct {
 	CouponType   string     `json:"coupon_type"`  // тип купона
 	CouponStart  *time.Time `json:"coupon_start"`
 	CouponEnd    *time.Time `json:"coupon_end"`
-	CouponPeriod int32      `json:"coupin_period"`
+	CouponPeriod int32      `json:"coupon_period"`
 	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"update_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
 }

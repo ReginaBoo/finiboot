@@ -8,13 +8,13 @@ export interface Bond {
   isin: string;
   buy_available_flag: boolean;
   sell_available_flag: boolean;
-  amortisation_flag: boolean;
+  amortization_flag: boolean;
   ticker: string;
   nominal: number;
   coupon_quantity_per_year: number;
   sector: string;
   placement_date: string;
-  perpertual_flag: boolean;
+  perpetual_flag: boolean;
   maturity_date: string;
 
 }

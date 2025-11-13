@@ -40,7 +40,7 @@ export const Pagination = ({
         disabled={isPreviousDisabled}
         className={`px-4 py-2 rounded ${isPreviousDisabled
           ? 'bg-gray-300 cursor-not-allowed'
-          : 'bg-[#482A69] text-white hover:bg-[#3a2155]'
+          : 'bg-[#482A69] text-white cursor-pointer hover:bg-[#3a2155]'
           }`}
       >
         Назад
@@ -61,7 +61,7 @@ export const Pagination = ({
         disabled={isNextDisabled}
         className={`px-4 py-2 rounded ${isNextDisabled
           ? 'bg-gray-300 cursor-not-allowed'
-          : 'bg-[#482A69] text-white hover:bg-[#3a2155]'
+          : 'bg-[#482A69] text-white cursor-pointer hover:bg-[#3a2155]'
           }`}
       >
         Вперед

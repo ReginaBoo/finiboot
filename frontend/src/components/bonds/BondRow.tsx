@@ -1,5 +1,7 @@
 import type { Bond } from '../../types/bond';
 import { useState } from "react";
+import { HiOutlineChevronDoubleDown, HiOutlineChevronDoubleUp } from "react-icons/hi2";
+
 interface BondRowProps {
   bond: Bond;
 }
@@ -45,7 +47,7 @@ export const BondRow = ({ bond }: BondRowProps) => {
         {/* Название и тикер */}
         <div className="col-span-2 text-left">
           <p className="font-medium text-[#482A69]">{bond.name}</p>
-          <p className="text-sm text-[#482A69]/60 mt-1">{bond.ticker}</p>
+          <p className="text-sm text-[#482A69]/60 mt-1">{bond.isin}</p>
         </div>
 
         {/* Номинал */}
@@ -80,7 +82,7 @@ export const BondRow = ({ bond }: BondRowProps) => {
         {/* Дата погашения */}
         <div className="col-span-2 text-center">
           <p className="text-[#482A69]">
-            {bond.perpertual_flag
+            {bond.perpetual_flag
               ? "-"
               : bond.maturity_date
                 ? new Date(bond.maturity_date).toLocaleDateString('ru-RU')
@@ -95,9 +97,9 @@ export const BondRow = ({ bond }: BondRowProps) => {
               e.stopPropagation();
               setIsOpen(!isOpen);
             }}
-            className="text-[#482A69] transition"
+            className="text-[#482A69] transition p-2 cursor-pointer hover:text-[#231136]"
           >
-            {isOpen ? "▲" : "▼"}
+            {isOpen ? <HiOutlineChevronDoubleUp size={20} /> : <HiOutlineChevronDoubleDown size={20} />}
           </button>
         </div>
       </div>
@@ -106,7 +108,7 @@ export const BondRow = ({ bond }: BondRowProps) => {
           <div className=" p-5 text-sm text-[#482A69] animate-fadeIn">
             <div className="grid grid-cols-3 w-full justify-between">
               <div className="text-left font-medium" >
-                <p><span className="text-[#482A69]/60">ISIN:</span> {bond.isin || "—"}</p>
+                <p><span className="text-[#482A69]/60">TICKER:</span> {bond.ticker || "—"}</p>
                 <p><span className="text-[#482A69]/60">FIGI:</span> {bond.figi || "—"}</p>
                 <p><span className="text-[#482A69]/60">Тип:</span> {getBondTypeName(bond.bond_type)}</p>
               </div>
@@ -117,8 +119,8 @@ export const BondRow = ({ bond }: BondRowProps) => {
               </div>
               <div className="font-medium text-left">
                 <p><span className=" text-[#482A69]/60">Можно продать:</span> {bond.sell_available_flag ? "Да" : "Нет"}</p>
-                <p><span className=" text-[#482A69]/60">Амортизация:</span> {bond.amortisation_flag ? "Да" : "Нет"}</p>
-                <p><span className=" text-[#482A69]/60">Бессрочная облигация:</span> {bond.perpertual_flag ? "Да" : "Нет"}</p>
+                <p><span className=" text-[#482A69]/60">Амортизация:</span> {bond.amortization_flag ? "Да" : "Нет"}</p>
+                <p><span className=" text-[#482A69]/60">Бессрочная облигация:</span> {bond.perpetual_flag ? "Да" : "Нет"}</p>
               </div>
             </div>
           </div>
