@@ -74,7 +74,7 @@ func (s *SyncService) SyncBondsFromTbank() error {
 	successCount := 0
 	for _, bond := range bonds {
 
-		if moneyToFloat(bond.Nominal) == 0 || bond.Currency != "rub" {
+		if moneyToFloat(bond.Nominal) == 0 || bond.Currency != "rub" || !bond.BuyAvailableFlag || !bond.SellAvailableFlag {
 			continue
 		}
 

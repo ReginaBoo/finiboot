@@ -36,7 +36,9 @@ func main() {
 	auth := router.Group("/")
 	auth.Use(middleware.Authorization())
 
-	auth.GET("/bonds", handlers.AllBonds)
+	auth.GET("/bonds", handlers.GetAllBonds)
+	router.GET("/bonds/:isin", handlers.GetBondbyISIN)
+
 	auth.GET("/search", handlers.SearchBonds)
 
 	router.GET("/ping", func(ctx *gin.Context) {

@@ -23,6 +23,7 @@ func main() {
 
 	routes.RegisterAuthRoutes(router)
 	routes.RegisterBondsRoutes(router)
+	routes.RegisterPortfolioRoutes(router)
 
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"message": "Gateway service is running"})

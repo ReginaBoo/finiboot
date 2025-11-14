@@ -42,6 +42,23 @@ func Authorization() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.Abort()
+			return
+		}
+
+		userIDFloat, ok := claims["sub"].(float64)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+			c.Abort()
+			return
+		}
+
+		userID := uint(userIDFloat)
+
+		c.Set("userID", userID)
 
 		c.Next()
 	}

@@ -17,7 +17,12 @@ type BondsResponse struct {
 	Number        int           `json:"number"`
 }
 
-func AllBonds(c *gin.Context) {
+type BondLookupRequest struct {
+	ISIN string `json:"isin"`
+	FIGI string `json:"figi"`
+}
+
+func GetAllBonds(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "0")
 	sizeStr := c.DefaultQuery("size", "10")
 
@@ -60,4 +65,16 @@ func AllBonds(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func GetBondbyISIN(c *gin.Context) {
+	isin := c.Param("isin")
+
+	var bond models.Bond
+	if err := db.DB.Preload("Coupons").Where("isin = ?", isin).First(&bond).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Not found bond"})
+		return
+	}
+
+	c.JSON(http.StatusOK, bond)
 }
