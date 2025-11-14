@@ -16,7 +16,19 @@ export interface Bond {
   placement_date: string;
   perpetual_flag: boolean;
   maturity_date: string;
+  Coupons?: Coupon[];
+}
 
+export interface Coupon {
+  coupon_id: number;
+  bond_figi: string;
+  coupon_number: number;
+  coupon_date: string;
+  pay_one_bond: number;
+  coupon_type: string;
+  coupon_start?: string;
+  coupon_end?: string;
+  coupon_period?: number;
 }
 
 export interface BondsResponse {

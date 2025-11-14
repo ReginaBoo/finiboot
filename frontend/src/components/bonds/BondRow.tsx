@@ -1,48 +1,18 @@
 import type { Bond } from '../../types/bond';
 import { useState } from "react";
 import { HiOutlineChevronDoubleDown, HiOutlineChevronDoubleUp } from "react-icons/hi2";
+import { CouponList } from "./CouponList";
+import { translateSector, getBondTypeName, translateCouponType } from "../../assets/translator";
+
 
 interface BondRowProps {
   bond: Bond;
 }
 
-const getBondTypeName = (type: string | number | null | undefined): string => {
-  switch (type) {
-    case "BOND_TYPE_UNSPECIFIED":
-    case 0:
-      return "Тип не определён";
-    case "BOND_TYPE_REPLACED":
-    case 1:
-      return "Замещающая облигация";
-    default:
-      return "Другой тип";
-  }
-};
-
-const translateSector = (sector?: string): string => {
-  const map: Record<string, string> = {
-    government: "Государственные облигации",
-    financial: "Финансовый сектор",
-    industrials: "Промышленность",
-    consumer: "Потребительский сектор",
-    materials: "Сырьевой сектор",
-    energy: "Энергетика",
-    utilities: "Коммунальные услуги",
-    real_estate: "Недвижимость",
-    it: "Информационные технологии",
-    telecom: "Телекоммуникации",
-    health_care: "Здравоохранение",
-    municipal: "Муниципальные облигации",
-    other: "Прочее",
-  };
-
-  return map[sector ?? ""] || "Неизвестно";
-};
-
 export const BondRow = ({ bond }: BondRowProps) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className={` mb-2 transition-all duration-300 ${isOpen ? "border-1  border-[#482A69]/30 rounded-xl shadow-[0px_0px_15px_rgba(72,42,105,0.2)] " : "hover:shadow-[0px_0px_15px_rgba(72,42,105,0.2)] hover:rounded-xl"}`}>
+    <div className={` mb-2 transition-all duration-300  ${isOpen ? "border-1  border-[#482A69]/30 rounded-xl shadow-[0px_0px_15px_rgba(72,42,105,0.2)]  " : "hover:shadow-[0px_0px_15px_rgba(72,42,105,0.2)] hover:rounded-xl"}`}>
       <div className={`grid grid-cols-13 gap-4 px-6 py-4 ${isOpen ? " border-b-1 border-[#482A69]/10" : ""}`}>
         {/* Название и тикер */}
         <div className="col-span-2 text-left">
@@ -105,27 +75,32 @@ export const BondRow = ({ bond }: BondRowProps) => {
       </div>
       {
         isOpen && (
-          <div className=" p-5 text-sm text-[#482A69] animate-fadeIn">
-            <div className="grid grid-cols-3 w-full justify-between">
+          <div className=" p-5 text-sm text-[#482A69] animate-fadeIn ">
+            <div className="grid grid-cols-3 w-full justify-items-center">
               <div className="text-left font-medium" >
                 <p><span className="text-[#482A69]/60">TICKER:</span> {bond.ticker || "—"}</p>
                 <p><span className="text-[#482A69]/60">FIGI:</span> {bond.figi || "—"}</p>
-                <p><span className="text-[#482A69]/60">Тип:</span> {getBondTypeName(bond.bond_type)}</p>
+                <p><span className="text-[#482A69]/60">Тип облигации:</span> {getBondTypeName(bond.bond_type)}</p>
               </div>
               <div className="text-left font-medium">
                 <p><span className=" text-[#482A69]/60">Страна:</span> {bond.country_of_risk_name || "—"}</p>
                 <p><span className=" text-[#482A69]/60">Валюта:</span> {bond.currency}</p>
-                <p><span className=" text-[#482A69]/60">Можно купить:</span> {bond.buy_available_flag ? "Да" : "Нет"}</p>
+                <p><span className=" text-[#482A69]/60">Можно купить и продать:</span> {bond.buy_available_flag && bond.sell_available_flag ? "Да" : "Нет"}</p>
               </div>
               <div className="font-medium text-left">
-                <p><span className=" text-[#482A69]/60">Можно продать:</span> {bond.sell_available_flag ? "Да" : "Нет"}</p>
+
+                <p><span className=" text-[#482A69]/60">Тип купона:</span> {bond.coupon_quantity_per_year > 0 && bond.Coupons ? translateCouponType(bond.Coupons[0].coupon_type) : "-"}</p>
                 <p><span className=" text-[#482A69]/60">Амортизация:</span> {bond.amortization_flag ? "Да" : "Нет"}</p>
                 <p><span className=" text-[#482A69]/60">Бессрочная облигация:</span> {bond.perpetual_flag ? "Да" : "Нет"}</p>
+
               </div>
             </div>
           </div>
         )
       }
+      {isOpen && bond.Coupons && bond.Coupons.length > 0 && (
+        <CouponList coupons={bond.Coupons} bondNominal={bond.nominal} />
+      )}
     </div >
 
   );
