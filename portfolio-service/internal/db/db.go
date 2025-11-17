@@ -32,7 +32,7 @@ func InitDB(dsn string) {
 		log.Fatalf("Failed connect to database: %v", err)
 	}
 
-	err = DB.AutoMigrate(&models.PortfolioItem{})
+	err = DB.AutoMigrate(&models.Portfolio{}, &models.PortfolioItem{}, &models.PortfolioTransaction{})
 	if err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}

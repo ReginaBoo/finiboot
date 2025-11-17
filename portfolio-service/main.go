@@ -22,8 +22,9 @@ func main() {
 	auth := router.Group("/")
 	auth.Use(middleware.Authorization())
 
-	auth.POST("/add", handlers.AddBondToPortfolio)
-
+	auth.POST("/bond/add", handlers.AddBondToPortfolio)
+	auth.GET("/portfolio/bonds", handlers.GetBondsPortfolio)
+	auth.POST("/portfolio/create", handlers.CreatePortfolio)
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"message": "Portfolio service is running"})
 	})

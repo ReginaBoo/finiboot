@@ -38,7 +38,7 @@ func main() {
 
 	auth.GET("/bonds", handlers.GetAllBonds)
 	router.GET("/bonds/:isin", handlers.GetBondbyISIN)
-
+	router.POST("bonds/batch", handlers.GetBondsBatch)
 	auth.GET("/search", handlers.SearchBonds)
 
 	router.GET("/ping", func(ctx *gin.Context) {
