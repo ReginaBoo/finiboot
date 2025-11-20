@@ -12,17 +12,10 @@ import (
 )
 
 func GetBondsPortfolio(c *gin.Context) {
-	userId, ok := c.Get("userID")
-
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authorized"})
-		return
-	}
-
-	uid := userId.(uint)
+	id := c.Query("id")
 
 	var items []models.PortfolioItem
-	if err := db.DB.Where("user_id = ?", uid).Find(&items).Error; err != nil {
+	if err := db.DB.Where("portfolio_id = ?", id).Find(&items).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load portfolio"})
 		return
 	}

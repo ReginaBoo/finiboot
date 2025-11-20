@@ -9,7 +9,7 @@ export const SearchBar = ({ query, setQuery, isLoading = false }: SearchBarProps
 
   const showLoading = useDelayedLoading(isLoading, 300, 200);
   return (
-    <div className="relative mb-6 w-full max-w-lg">
+    <div className="relative w-full max-w-lg">
       <input
         type="text"
         value={query}

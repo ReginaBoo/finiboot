@@ -10,3 +10,8 @@ type PortfolioBond struct {
 	Nominal  float64 `json:"nominal"`
 	Currency string  `json:"currency"`
 }
+
+type Portfolios struct {
+	Id   uint   `json:"id"`
+	Name string `json:"name"`
+}
