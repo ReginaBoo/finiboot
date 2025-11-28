@@ -23,7 +23,7 @@ export function useSearchBonds() {
       } finally {
         setIsLoading(false);
       }
-    }, 400);
+    }, 100);
 
     return () => clearTimeout(timeout);
   }, [query]);

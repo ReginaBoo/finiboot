@@ -16,27 +16,21 @@ export const useBonds = ({
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [cachedBonds, setCachedBonds] = useState<Bond[]>([]);
-
+  const [previousBonds, setPreviousBonds] = useState<Bond[]>([]);
 
   useEffect(() => {
-    let isCancelled = false;
 
     const fetchBonds = async () => {
       setIsLoading(true);
       setError(null);
 
-      if (isCancelled) return;
       try {
         const response = await bondsService.getBonds(currentPage, pageSize);
 
-        setCachedBonds(response.content);
+        setPreviousBonds(response.content);
         setBonds(response.content);
         setTotalPages(response.total_pages);
       } catch (err: any) {
-
-        if (isCancelled) return;
-
         if (err.response?.status === 401) {
           setError('Пожалуйста, войдите в систему');
         } else {
@@ -49,13 +43,10 @@ export const useBonds = ({
     };
 
     if (bonds.length > 0) {
-      setCachedBonds(bonds);
+      setPreviousBonds(bonds);
     }
 
     fetchBonds();
-    return () => {
-      isCancelled = true;
-    };
   }, [currentPage, pageSize]);
 
   const handlePreviousPage = () => {
@@ -70,7 +61,7 @@ export const useBonds = ({
     }
   };
 
-  const displayedBonds = isLoading && cachedBonds.length > 0 ? cachedBonds : bonds;
+  const displayedBonds = isLoading && previousBonds.length > 0 ? previousBonds : bonds;
 
   return {
     bonds: displayedBonds,
@@ -80,6 +71,5 @@ export const useBonds = ({
     error,
     handlePreviousPage,
     handleNextPage,
-    setCurrentPage
   };
 };

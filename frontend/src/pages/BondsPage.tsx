@@ -2,7 +2,7 @@ import { AppLayout } from "../components/layout/AppLayout";
 import { useBonds } from "../hooks/useBonds";
 import { useSearchBonds } from "../hooks/useSearchBonds";
 import { BondsTableHeader } from "../components/bonds/BondsTableHeader";
-import { AddToPortfolioModal } from "../components/bonds/AddToPortfolioModal";
+import { AddToPortfolioModal } from "../components/portfolio/AddToPortfolioModal";
 import { BondRow } from "../components/bonds/BondRow";
 import { SearchBar } from "../components/bonds/SearchBar";
 import { Pagination } from "../components/bonds/Pagination";
@@ -43,6 +43,7 @@ export default function BondsPage() {
     setIsModalOpen(true);
   };
 
+
   if (error) {
     return (
       <AppLayout>
@@ -75,7 +76,7 @@ export default function BondsPage() {
                 <div className="flex-shrink-0 w-10 h-full flex items-center justify-center mt-4 ">
                   <button
                     onClick={() => handleAddClick(bond)}
-                    className=" justify-center hover:text-[#3A2155] hover:cursor-pointer transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className=" justify-center hover:text-[#3A2155] hover:cursor-pointer transition-colors opacity-0 group-hover:opacity-100  focus:outline-none"
                   >
                     <IoAddCircleOutline size={25} />
                   </button>
@@ -97,22 +98,20 @@ export default function BondsPage() {
               onPrevious={handlePreviousPage}
               onNext={handleNextPage}
               isLoading={isLoading}
-
             /></div>)}
 
         </div>
+
       </AppLayout>
-      <div>
-        <AddToPortfolioModal
-          bond={selectedBond}
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedBond(null);
-          }}
-          onAdd={handleAddToPortfolio}
-        />
-      </div>
+      <AddToPortfolioModal
+        bond={selectedBond}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedBond(null);
+        }}
+        onAdd={handleAddToPortfolio}
+      />
     </>
   );
 }

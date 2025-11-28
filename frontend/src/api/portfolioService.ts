@@ -28,4 +28,11 @@ export const portfolioService = {
     const response = await api.get<Portfolio[]>(`${API_BASE_URL}/portfolios`);
     return response.data;
   },
+
+  async createPortfolio(name: string): Promise<Portfolio> {
+    const response = await api.post(`${API_BASE_URL}/create`, {
+      name: name
+    });
+    return response.data;
+  },
 };

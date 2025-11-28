@@ -1,7 +1,8 @@
-// components/bonds/AddToPortfolioModal.tsx
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useState } from "react";
 import type { Bond } from "../../types/bond";
-import { usePortfolios } from "../../hooks/usePortfolios"
+import { CreatePortfolioForm } from "./CreatePortfolioForm";
+import { usePortfolios } from "../../hooks/usePortfolios";
 
 interface AddToPortfolioModalProps {
   bond: Bond | null;
@@ -14,9 +15,17 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
   const [quantity, setQuantity] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
   const [sellDate, setSellDate] = useState("");
-
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | "">("");
-  const { portfolios, isLoading, error } = usePortfolios();
+
+  const { portfolios, isLoading, error, refetch } = usePortfolios();
+
+  const handlePortfolioCreated = (portfolioId: number) => {
+    setSelectedPortfolioId(portfolioId);
+  };
+
+  const handlePortfoliosUpdate = async () => {
+    await refetch(); // ← обновляем данные в родителе
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +35,6 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
         alert("Введите корректное количество");
         return;
       }
-
       onAdd(
         bond.isin,
         quantityNum,
@@ -35,41 +43,39 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
         sellDate
       );
       onClose();
-      // Сброс формы
-      setQuantity("");
-      setPurchaseDate("");
-      setSellDate("");
-      setSelectedPortfolioId("");
+      resetForm();
     }
   };
 
-  if (!isOpen || !bond) return null;
+  const resetForm = () => {
+    setQuantity("");
+    setPurchaseDate("");
+    setSellDate("");
+    setSelectedPortfolioId("");
+  };
+
+  if (!bond) return null;
 
   return (
-    <>
-      {/* Затемненный фон на весь экран */}
-      <div
-        className="fixed inset-0 bg-black/40  z-40"
-        onClick={onClose}
-      />
+    <Dialog open={isOpen} onClose={onClose} >
+      {/* Затемненный фон */}
+      <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
 
       {/* Модальное окно по центру */}
-      <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
-        <div
-          className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
+      <div className="fixed inset-0 flex items-center justify-center p-4 ">
+        <DialogPanel className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
           {/* Заголовок */}
-          <div className="text-center p-6   text-[#482A69]">
-            <p className="text-xl font-semibold">
-              Добавить в портфель
-            </p>
-            <p className="font-bold text-lg mt-2">
+          <div className="text-center pt-6 pb-4 px-6 text-[#482A69]">
+            <DialogTitle className="text-md font-semibold">
+              Добавить в портфель:
+            </DialogTitle>
+            <DialogTitle className="font-bold text-lg">
               {bond.name}
-            </p>
+            </DialogTitle>
           </div>
+
           {/* Форма */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <form onSubmit={handleSubmit} className="py-2 px-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Портфель
@@ -79,23 +85,29 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
               ) : error ? (
                 <div className="text-sm text-red-500">{error}</div>
               ) : portfolios.length === 0 ? (
-                <div className="text-sm text-gray-500">
-                  У вас нет портфелей. Создайте портфель сначала.
-                </div>
+                <CreatePortfolioForm onPortfolioCreated={handlePortfolioCreated} onPortfoliosUpdate={handlePortfoliosUpdate} />
               ) : (
-                <select
-                  value={selectedPortfolioId}
-                  onChange={(e) => setSelectedPortfolioId(e.target.value ? parseInt(e.target.value) : "")}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#482A69] focus:border-transparent"
-                  required
-                >
-                  <option value="">Выберите портфель</option>
-                  {portfolios.map((portfolio) => (
-                    <option key={portfolio.id} value={portfolio.id}>
-                      {portfolio.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="space-y-3">
+                  <select
+                    value={selectedPortfolioId}
+                    onChange={(e) => setSelectedPortfolioId(e.target.value ? parseInt(e.target.value) : "")}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#482A69] focus:border-transparent"
+                    required
+                  >
+                    <option value="">Выберите портфель</option>
+                    {portfolios.map((portfolio) => (
+                      <option key={portfolio.id} value={portfolio.id}>
+                        {portfolio.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <CreatePortfolioForm
+                    onPortfolioCreated={handlePortfolioCreated}
+                    onPortfoliosUpdate={handlePortfoliosUpdate}
+                    compact
+                  />
+                </div>
               )}
             </div>
 
@@ -125,6 +137,7 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
                 required
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Дата продажи
@@ -134,10 +147,8 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
                 value={sellDate}
                 onChange={(e) => setSellDate(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#482A69] focus:border-transparent"
-                required
               />
             </div>
-
 
             <div className="flex gap-3 pt-4">
               <button
@@ -155,8 +166,8 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
               </button>
             </div>
           </form>
-        </div>
+        </DialogPanel>
       </div>
-    </>
+    </Dialog >
   );
 }

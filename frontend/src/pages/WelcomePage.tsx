@@ -7,14 +7,11 @@ export default function WelcomePage() {
   return (
     <div className="font-sofia">
       <div className="bg-[#231136] p-55" >
-
         <section className={WelcomPageCSS}>
           <div className="text-9xl font-[Sofia-Sans]">
             <span className="text-[#B39BE3]">Fini</span>
             <span className="text-fuchsia-50">boot</span>
           </div>
-
-
           <div className="flex gap-4">
             <button
               onClick={() => navigate("/login")}
@@ -30,9 +27,6 @@ export default function WelcomePage() {
             </button>
           </div>
         </section>
-
-
-
       </div>
       <section className="bg-gray-30px-8 py-12 text-center">
         <h2 className="text-2xl font-semibold mb-5">О проекте</h2>
@@ -41,7 +35,6 @@ export default function WelcomePage() {
           планировать доходность облигаций, строить портфель и визуализировать
           будущие выплаты.
         </p>
-
         <h3 className="text-xl font-semibold mb-5">Стек технологий</h3>
         <p className="max-w-3xl mx-auto mb-10">
           <span className="text-[#B39BE3] font-medium">Frontend:</span> React, TypeScript, Tailwind CSS
@@ -49,7 +42,6 @@ export default function WelcomePage() {
           <span className="text-[#B39BE3] font-medium">Backend:</span> Go (Gin, Gorm, PostgreSQL, Docker)
           <br />
         </p>
-
         <h3 className="text-xl font-semibold mb-5">Минимальный функционал MVP</h3>
         <ul className="list-disc list-inside max-w-2xl mx-auto text-left">
           <li>Регистрация и вход с JWT-аутентификацией</li>
@@ -58,8 +50,6 @@ export default function WelcomePage() {
           <li>Фильтрация и сортировка бумаг</li>
         </ul>
       </section>
-
     </div>
-
   );
 }
