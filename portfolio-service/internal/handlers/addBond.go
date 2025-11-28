@@ -53,7 +53,7 @@ func AddBondToPortfolio(c *gin.Context) {
 		return
 	}
 
-	saleDate, err := time.Parse("2006-01-02", req.SellDate)
+	sellDate, err := time.Parse("2006-01-02", req.SellDate)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "sell_date must be YYYY-MM-DD"})
 		return
@@ -78,9 +78,10 @@ func AddBondToPortfolio(c *gin.Context) {
 	item = models.PortfolioItem{
 		PortfolioID:  req.PortfolioID,
 		BondISIN:     req.Isin,
-		TotalQty:     req.Quantity,
+		Quantity:     req.Quantity,
 		AveragePrice: bond.Nominal,
-		SaleDate:     saleDate,
+		SellDate:     sellDate,
+		PurchaseDate: purchaseDate,
 	}
 	// Решение: всегда проверяйте ошибки
 	if err := db.DB.Create(&item).Error; err != nil {

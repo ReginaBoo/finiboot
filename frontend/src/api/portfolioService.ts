@@ -1,5 +1,5 @@
 import api from "./api";
-import type { Portfolio } from "../types/portfolio";
+import type { Portfolio, PortfolioItem } from "../types/portfolio";
 
 const API_BASE_URL = '/portfolio';
 
@@ -33,6 +33,11 @@ export const portfolioService = {
     const response = await api.post(`${API_BASE_URL}/create`, {
       name: name
     });
+    return response.data;
+  },
+
+  async getPortfolioBonds(portfolioId: number): Promise<PortfolioItem[]> {
+    const response = await api.get(`/portfolio/bonds?id=${portfolioId}`);
     return response.data;
   },
 };
