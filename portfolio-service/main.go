@@ -26,6 +26,8 @@ func main() {
 	auth.GET("/bonds", handlers.GetBondsPortfolio)
 	auth.GET("/portfolios", handlers.GetPortfolios)
 	auth.POST("/create", handlers.CreatePortfolio)
+	auth.DELETE("/delete/:id", handlers.Deleteportfolio)
+
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"message": "Portfolio service is running"})
 	})
