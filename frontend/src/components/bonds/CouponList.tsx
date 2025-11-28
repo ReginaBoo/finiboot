@@ -40,7 +40,7 @@ export const CouponList = ({ coupons, bondNominal }: CouponListProps) => {
       <div className="my-2">
         {!showFutureCoupons && remainingFuture > 0 && (
           <button
-            className="text-sm text-[#482A69]/80 hover:text-[#482A69] font-medium text-left"
+            className="text-sm text-[#482A69]/80 hover:text-[#482A69] font-medium text-left cursor-pointer"
             onClick={() => setShowFutureCoupons(true)}
           >
             Еще {remainingFuture} будущих выплат
@@ -72,7 +72,7 @@ export const CouponList = ({ coupons, bondNominal }: CouponListProps) => {
       <div className="mt-2">
         {!showPastCoupons && remainingPast > 0 && (
           <button
-            className="text-sm text-[#482A69]/80 hover:text-[#482A69] font-medium text-left"
+            className="text-sm text-[#482A69]/80 hover:text-[#482A69] font-medium text-left cursor-pointer"
             onClick={() => setShowPastCoupons(true)}
           >
             Еще {remainingPast} прошлых выплат

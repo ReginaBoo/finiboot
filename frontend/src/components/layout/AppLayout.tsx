@@ -9,7 +9,11 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState<boolean>(() => {
+    const saved = localStorage.getItem("isFiltersCollapsed");
+    return saved ? JSON.parse(saved) : false;
+  });
+
   const [isNavExpanded, setIsNavExpanded] = useState<boolean>(() => {
     const saved = localStorage.getItem("isNavExpanded");
     return saved ? JSON.parse(saved) : false;
@@ -19,6 +23,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     const newState = !isNavExpanded;
     setIsNavExpanded(newState);
     localStorage.setItem("isNavExpanded", JSON.stringify(newState));
+  };
+
+  const toggleFilters = () => {
+    const newState = !isFiltersCollapsed;
+    setIsFiltersCollapsed(newState);
+    localStorage.setItem("isFiltersCollapsed", JSON.stringify(newState));
   };
 
   return (
@@ -52,7 +62,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         {/* Кнопка сворачивания фильтров */}
         <button
 
-          onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
+          onClick={toggleFilters}
           className="absolute cursor-pointer -right-3 top-7 w-6 h-6 bg-[#482A69] rounded-full border-2 border-white shadow-lg grid place-items-center text-white text-sm pt-0  hover:bg-[#5a3480] transition-colors z-10 ">
           {isFiltersCollapsed ? < HiOutlineChevronRight /> : < HiOutlineChevronLeft />}
         </button>
