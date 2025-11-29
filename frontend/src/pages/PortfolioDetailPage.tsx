@@ -55,7 +55,7 @@ export default function PortfolioDetailPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-1 py-3">
-          {bonds.length === 0 ? (
+          {!bonds || bonds.length === 0 ? (
             <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
               <p className="text-gray-500 mb-4">В портфеле пока нет облигаций</p>
               <Link

@@ -27,15 +27,26 @@ export function usePortfolios() {
     try {
       setError(null);
       const newPortfolio = await portfolioService.createPortfolio(name);
-
-      // ОБНОВЛЯЕМ список портфелей после создания
-      await fetchPortfolios(); // ← ВАЖНО: обновляем данные
-
+      await fetchPortfolios();
       return newPortfolio;
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Ошибка создания портфеля';
       setError(errorMessage);
       console.error('Error creating portfolio:', err);
+      throw err;
+    }
+  };
+
+  const deletePortfolio = async (portfolioId: number) => {
+    try {
+      setError(null);
+      await portfolioService.deletePortfolio(portfolioId);
+      setPortfolios(prev => prev.filter(p => p.id !== portfolioId));
+      return true;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Ошибка удаления портфеля';
+      setError(errorMessage);
+      console.error('Error deleting portfolio:', err);
       throw err;
     }
   };
@@ -49,6 +60,7 @@ export function usePortfolios() {
     isLoading,
     error,
     createPortfolio,
+    deletePortfolio,
     refetch: fetchPortfolios
   };
 }

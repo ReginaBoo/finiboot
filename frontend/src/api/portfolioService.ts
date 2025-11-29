@@ -40,4 +40,9 @@ export const portfolioService = {
     const response = await api.get(`/portfolio/bonds?id=${portfolioId}`);
     return response.data;
   },
+
+  async deletePortfolio(portfolioId: number): Promise<void> {
+    const response = await api.delete(`http://localhost:8080/api/portfolio/delete/${portfolioId}`);
+    return response.data
+  },
 };

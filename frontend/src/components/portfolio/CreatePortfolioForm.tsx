@@ -1,55 +1,52 @@
 // components/portfolio/CreatePortfolioForm.tsx
 import { useState } from 'react';
-import { usePortfolios } from '../../hooks/usePortfolios';
+import { usePortfolioManagement } from '../../hooks/usePortfolioManagement';
 
 interface CreatePortfolioFormProps {
   onPortfolioCreated?: (portfolioId: number) => void;
   compact?: boolean;
-  onPortfoliosUpdate?: () => void;
+  autoClose?: boolean;
+  placeholder?: string;
 }
 
-export function CreatePortfolioForm({ onPortfolioCreated, compact = false, onPortfoliosUpdate }: CreatePortfolioFormProps) {
-  const [isCreating, setIsCreating] = useState(false);
+export function CreatePortfolioForm({
+  onPortfolioCreated,
+  compact = false,
+  autoClose = true,
+  placeholder = "Название портфеля"
+}: CreatePortfolioFormProps) {
   const [portfolioName, setPortfolioName] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const { createPortfolio } = usePortfolios();
+  const [showForm, setShowForm] = useState(!compact);
+  const { createPortfolio, isCreating } = usePortfolioManagement();
 
-  const handleCreatePortfolio = async () => {
-    if (!portfolioName.trim()) {
-      alert("Введите название портфеля");
-      return;
-    }
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
 
     try {
-      setIsCreating(true);
-      const newPortfolio = await createPortfolio(portfolioName.trim());
+      const newPortfolio = await createPortfolio(portfolioName);
 
-      setPortfolioName('');
-      setShowForm(false);
+      if (newPortfolio) {
+        setPortfolioName('');
 
-      // Вызываем колбэк для обновления данных в родителе
-      if (onPortfoliosUpdate) {
-        onPortfoliosUpdate();
+        if (autoClose && compact) {
+          setShowForm(false);
+        }
+
+        if (onPortfolioCreated) {
+          onPortfolioCreated(newPortfolio.id);
+        }
       }
-
-      // Вызываем колбэк если передан
-      if (onPortfolioCreated) {
-        onPortfolioCreated(newPortfolio.id);
-      }
-    } catch (err) {
-      console.error('Error creating portfolio:', err);
-    } finally {
-      setIsCreating(false);
+    } catch (error) {
+      // Ошибка уже показана через уведомление
     }
   };
-
 
   const handleCancel = () => {
     setShowForm(false);
     setPortfolioName('');
   };
 
-  // Компактный вариант (только кнопка + форма)
+  // 🔥 КОМПАКТНЫЙ РЕЖИМ - ИСПОЛЬЗУЕМ DIV ВМЕСТО FORM
   if (compact) {
     return (
       <div className="space-y-2">
@@ -63,23 +60,31 @@ export function CreatePortfolioForm({ onPortfolioCreated, compact = false, onPor
             Создать новый портфель
           </button>
         ) : (
+          // 🔥 ЗАМЕНЯЕМ form НА div
           <div className="space-y-2">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={portfolioName}
                 onChange={(e) => setPortfolioName(e.target.value)}
-                placeholder="Название портфеля"
+                placeholder={placeholder}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#482A69] focus:border-transparent text-sm"
                 maxLength={50}
+                autoFocus
+                onKeyDown={(e) => {
+                  // 🔥 ДОБАВЛЯЕМ ОБРАБОТКУ ENTER
+                  if (e.key === 'Enter') {
+                    handleSubmit();
+                  }
+                }}
               />
               <button
-                type="button"
-                onClick={handleCreatePortfolio}
+                type="button" // 🔥 МЕНЯЕМ type НА button
+                onClick={handleSubmit}
                 disabled={isCreating || !portfolioName.trim()}
                 className="px-3 py-2 bg-[#482A69] text-white rounded-md hover:bg-[#3A2155] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
               >
-                {isCreating ? '...' : 'Создать'}
+                {isCreating ? '...' : '✓'}
               </button>
               <button
                 type="button"
@@ -89,48 +94,32 @@ export function CreatePortfolioForm({ onPortfolioCreated, compact = false, onPor
                 ×
               </button>
             </div>
-            {portfolioName.trim() && (
-              <div className="text-xs text-gray-500">
-                Будет создан портфель: "{portfolioName}"
-              </div>
-            )}
           </div>
         )}
       </div>
     );
   }
 
-  // Полный вариант (с заголовком и описанием)
+  // 🔥 ПОЛНЫЙ РЕЖИМ - ОСТАВЛЯЕМ FORM (здесь нет вложенности)
   return (
-    <div className="space-y-3">
-      <div className="text-sm text-gray-500">
-        У вас нет портфелей. Создайте портфель сначала.
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex gap-2">
         <input
           type="text"
           value={portfolioName}
           onChange={(e) => setPortfolioName(e.target.value)}
-          placeholder="Название портфеля"
+          placeholder={placeholder}
           className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#482A69] focus:border-transparent"
           maxLength={50}
         />
         <button
-          type="button"
-          onClick={handleCreatePortfolio}
+          type="submit"
           disabled={isCreating || !portfolioName.trim()}
           className="px-4 py-2 bg-[#482A69] text-white rounded-md hover:bg-[#3A2155] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {isCreating ? 'Создание...' : 'Создать'}
+          {isCreating ? 'Создание...' : 'Создать портфель'}
         </button>
       </div>
-
-      {portfolioName.trim() && (
-        <div className="text-xs text-gray-500">
-          Будет создан портфель: "{portfolioName}"
-        </div>
-      )}
-    </div>
+    </form>
   );
 }

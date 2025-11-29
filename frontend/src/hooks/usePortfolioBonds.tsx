@@ -10,15 +10,19 @@ export function usePortfolioBonds(portfolioId: number | undefined) {
   const [error, setError] = useState<string | null>(null);
 
   const fetchBonds = async () => {
-    if (!portfolioId) return;
-
+    if (!portfolioId) {
+      setBonds([]);
+      setError("ID портфеля не указан");
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
       const data = await portfolioService.getPortfolioBonds(portfolioId);
-      setBonds(data);
+      setBonds(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Ошибка загрузки облигаций');
+
     } finally {
       setIsLoading(false);
     }

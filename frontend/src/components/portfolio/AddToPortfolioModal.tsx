@@ -1,49 +1,55 @@
+// components/portfolio/AddToPortfolioModal.tsx
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useState } from "react";
 import type { Bond } from "../../types/bond";
 import { CreatePortfolioForm } from "./CreatePortfolioForm";
-import { usePortfolios } from "../../hooks/usePortfolios";
+import { usePortfolioManagement } from "../../hooks/usePortfolioManagement";
 
 interface AddToPortfolioModalProps {
   bond: Bond | null;
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (bondISIN: string, quantity: number, purchaseDate: string, portfolioId: number, sellDate: string) => void;
 }
 
-export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortfolioModalProps) {
+export function AddToPortfolioModal({ bond, isOpen, onClose }: AddToPortfolioModalProps) {
   const [quantity, setQuantity] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
   const [sellDate, setSellDate] = useState("");
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | "">("");
-
-  const { portfolios, isLoading, error, refetch } = usePortfolios();
+  const { portfolios, isLoading, error, addBondToPortfolio, refetch } = usePortfolioManagement();
 
   const handlePortfolioCreated = (portfolioId: number) => {
     setSelectedPortfolioId(portfolioId);
+    refetch();
   };
 
-  const handlePortfoliosUpdate = async () => {
-    await refetch(); // ← обновляем данные в родителе
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (bond && quantity && purchaseDate && selectedPortfolioId) {
-      const quantityNum = parseInt(quantity);
-      if (isNaN(quantityNum) || quantityNum <= 0) {
-        alert("Введите корректное количество");
-        return;
-      }
-      onAdd(
+
+    if (!bond || !quantity || !purchaseDate || !selectedPortfolioId) {
+      return;
+    }
+
+    const quantityNum = parseInt(quantity);
+    if (isNaN(quantityNum) || quantityNum <= 0) {
+      return;
+    }
+
+    try {
+      const success = await addBondToPortfolio(
         bond.isin,
         quantityNum,
         purchaseDate,
         selectedPortfolioId,
         sellDate
       );
-      onClose();
-      resetForm();
+
+      if (success) {
+        onClose();
+        resetForm();
+      }
+    } catch (error) {
+      console.error("Error in modal submit:", error);
     }
   };
 
@@ -57,14 +63,10 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
   if (!bond) return null;
 
   return (
-    <Dialog open={isOpen} onClose={onClose} >
-      {/* Затемненный фон */}
+    <Dialog open={isOpen} onClose={onClose}>
       <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
-
-      {/* Модальное окно по центру */}
-      <div className="fixed inset-0 flex items-center justify-center p-4 ">
+      <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
-          {/* Заголовок */}
           <div className="text-center pt-6 pb-4 px-6 text-[#482A69]">
             <DialogTitle className="text-md font-semibold">
               Добавить в портфель:
@@ -74,7 +76,6 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
             </DialogTitle>
           </div>
 
-          {/* Форма */}
           <form onSubmit={handleSubmit} className="py-2 px-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -85,7 +86,10 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
               ) : error ? (
                 <div className="text-sm text-red-500">{error}</div>
               ) : portfolios.length === 0 ? (
-                <CreatePortfolioForm onPortfolioCreated={handlePortfolioCreated} onPortfoliosUpdate={handlePortfoliosUpdate} />
+                <CreatePortfolioForm
+                  onPortfolioCreated={handlePortfolioCreated}
+                  compact={true}
+                />
               ) : (
                 <div className="space-y-3">
                   <select
@@ -104,13 +108,13 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
 
                   <CreatePortfolioForm
                     onPortfolioCreated={handlePortfolioCreated}
-                    onPortfoliosUpdate={handlePortfoliosUpdate}
-                    compact
+                    compact={true}
                   />
                 </div>
               )}
             </div>
 
+            {/* Остальные поля без изменений */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Количество
@@ -168,6 +172,6 @@ export function AddToPortfolioModal({ bond, isOpen, onClose, onAdd }: AddToPortf
           </form>
         </DialogPanel>
       </div>
-    </Dialog >
+    </Dialog>
   );
 }

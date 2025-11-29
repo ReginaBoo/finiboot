@@ -8,29 +8,19 @@ import { SearchBar } from "../components/bonds/SearchBar";
 import { Pagination } from "../components/bonds/Pagination";
 import { useEffect, useRef, useState } from "react";
 import { IoAddCircleOutline } from "react-icons/io5";
-import { usePortfolioOperations } from "../hooks/usePortfolioOperations";
 import type { Bond } from "../types/bond";
 
 
-
 export default function BondsPage() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const {
-    bonds,
-    currentPage,
-    totalPages,
-    isLoading,
-    error,
-    handlePreviousPage,
-    handleNextPage
-  } = useBonds({ pageSize: 10 });
-
+  const { bonds, currentPage, totalPages, isLoading,
+    handlePreviousPage, handleNextPage } = useBonds({ pageSize: 10 });
   const { query, setQuery, results, isLoading: isSearchLoading } = useSearchBonds();
+
   const displayedBonds = query.trim() ? results : bonds;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBond, setSelectedBond] = useState<Bond | null>(null);
-  const { handleAddToPortfolio } = usePortfolioOperations();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -38,21 +28,12 @@ export default function BondsPage() {
     }
   }, [currentPage]);
 
+
   const handleAddClick = (bond: Bond) => {
     setSelectedBond(bond);
     setIsModalOpen(true);
   };
 
-
-  if (error) {
-    return (
-      <AppLayout>
-        <div className="p-8 text-[#482A69]">
-          <div className="text-red-600 text-center">{error}</div>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <>
@@ -72,6 +53,7 @@ export default function BondsPage() {
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-1 py-3">
             {displayedBonds.map((bond) => (
               <div key={bond.bond_id} className="flex items-start mb-2 group">
+
                 {/* Кнопка добавления */}
                 <div className="flex-shrink-0 w-10 h-full flex items-center justify-center mt-4 ">
                   <button
@@ -101,8 +83,8 @@ export default function BondsPage() {
             /></div>)}
 
         </div>
-
       </AppLayout>
+
       <AddToPortfolioModal
         bond={selectedBond}
         isOpen={isModalOpen}
@@ -110,8 +92,8 @@ export default function BondsPage() {
           setIsModalOpen(false);
           setSelectedBond(null);
         }}
-        onAdd={handleAddToPortfolio}
       />
     </>
+
   );
 }
