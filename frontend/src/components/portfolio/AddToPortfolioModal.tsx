@@ -3,41 +3,35 @@ import { useState } from "react";
 import type { Bond } from "../../types/bond";
 import { CreatePortfolioForm } from "./CreatePortfolioForm";
 import { usePortfolios } from '../../hooks/usePortfolios';
-import type { Portfolio } from '../../types/portfolio'
+import { useNotificationContext } from '../context/NotificationContext';
 
 interface AddToPortfolioModalProps {
   bond: Bond | null;
   isOpen: boolean;
   onClose: () => void;
-  portfolios: Portfolio[];           // ← Добавляем
-  isLoading: boolean;               // ← Добавляем  
-  createPortfolio: (name: string) => Promise<any>; // ← Добавляем
 }
 
 export function AddToPortfolioModal({ bond,
   isOpen,
   onClose,
-  portfolios,
-  isLoading,
-  createPortfolio }: AddToPortfolioModalProps) {
+}: AddToPortfolioModalProps) {
   const [quantity, setQuantity] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
   const [sellDate, setSellDate] = useState("");
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | "">("");
-  const { addBondToPortfolio } = usePortfolios();
+  const { addBondToPortfolio, createPortfolio, portfolios } = usePortfolios();
+  const { showNotification } = useNotificationContext();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!bond || !quantity || !purchaseDate || !selectedPortfolioId) {
       return;
     }
-
     const quantityNum = parseInt(quantity);
     if (isNaN(quantityNum) || quantityNum <= 0) {
       return;
     }
-
     try {
       const success = await addBondToPortfolio(
         bond.isin,
@@ -46,13 +40,13 @@ export function AddToPortfolioModal({ bond,
         selectedPortfolioId,
         sellDate
       );
-
       if (success) {
         onClose();
         resetForm();
       }
-    } catch (error) {
-      console.error("Error in modal submit:", error);
+    } catch (error: any) {
+      const errorMessage = error.message || 'Ошибка';
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -84,9 +78,7 @@ export function AddToPortfolioModal({ bond,
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Портфель
               </label>
-              {isLoading ? (
-                <div className="text-sm text-gray-500">Загрузка портфелей...</div>
-              ) : portfolios.length === 0 ? (
+              {portfolios.length === 0 ? (
                 <CreatePortfolioForm
                   onCreatePortfolio={createPortfolio}
                   compact={true}

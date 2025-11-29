@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { bondsService } from '../api/bondsService';
 import type { Bond } from '../types/bond';
 import { useNotificationContext } from '../components/context/NotificationContext';
+
 interface UseBondsProps {
   initialPage?: number;
   pageSize?: number;
@@ -20,29 +21,26 @@ export const useBonds = ({
   const { showNotification } = useNotificationContext();
 
   useEffect(() => {
-
     const fetchBonds = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
+
+        setPreviousBonds(bonds);
+
         const response = await bondsService.getBonds(currentPage, pageSize);
 
-        setPreviousBonds(response.content);
         setBonds(response.content);
         setTotalPages(response.total_pages);
       } catch (err: any) {
         const errorMessage = err.message || 'Ошибка при загрузке облигаций';
         showNotification(errorMessage, 'error');
-
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
     };
-
-    if (bonds.length > 0) {
-      setPreviousBonds(bonds);
-    }
 
     fetchBonds();
   }, [currentPage, pageSize]);
