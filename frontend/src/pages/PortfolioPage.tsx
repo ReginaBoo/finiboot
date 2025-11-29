@@ -1,39 +1,17 @@
-// pages/PortfolioPage.tsx
 import { AppLayout } from "../components/layout/AppLayout";
-import { usePortfolioManagement } from "../hooks/usePortfolioManagement";
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import { CreatePortfolioForm } from "../components/portfolio/CreatePortfolioForm";
 import { useDelayedLoading } from '../hooks/useDelayedLoading';
+import { usePortfolios } from "../hooks/usePortfolios";
 export default function PortfolioPage() {
   const {
     portfolios,
     isLoading,
     deletePortfolio,
-    refetch
-  } = usePortfolioManagement();
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+    createPortfolio
+  } = usePortfolios();
 
   const showLoading = useDelayedLoading(isLoading, 500, 300);
-
-  const handlePortfolioCreated = () => {
-    refetch();
-  };
-
-
-  const handleDeletePortfolio = async (portfolioId: number) => {
-    if (!confirm("Вы уверены, что хотите удалить этот портфель?")) {
-      return;
-    }
-
-    setDeletingId(portfolioId);
-    try {
-      await deletePortfolio(portfolioId);
-    } catch (error: any) {
-    } finally {
-      setDeletingId(null);
-    }
-  };
 
   if (showLoading) {
     return (
@@ -53,7 +31,7 @@ export default function PortfolioPage() {
             <h1 className="text-2xl font-bold mb-6">Мои портфели</h1>
             <span className="max-w-md">
               <CreatePortfolioForm
-                onPortfolioCreated={handlePortfolioCreated}
+                onCreatePortfolio={createPortfolio}
                 compact={false}
               />
             </span>
@@ -78,11 +56,10 @@ export default function PortfolioPage() {
                       Подробнее
                     </Link>
                     <button
-                      onClick={() => handleDeletePortfolio(portfolio.id)}
-                      disabled={deletingId === portfolio.id}
+                      onClick={() => deletePortfolio(portfolio.id)}
                       className="px-4 py-2 border-2 border-[#3A2155] text-[#3A2155] rounded-md transition-colors text-sm flex-1"
                     >
-                      {deletingId === portfolio.id ? "Удаление..." : "Удалить"}
+                      Удалить
                     </button>
                   </div>
                 </div>

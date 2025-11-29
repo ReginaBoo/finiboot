@@ -16,8 +16,6 @@ export function Notification({ show, message, onClose, type = 'success', duratio
     warning: 'bg-yellow-50 text-yellow-800 border-yellow-200',
   };
 
-
-
   useEffect(() => {
     if (show && duration > 0) {
       const timer = setTimeout(() => {

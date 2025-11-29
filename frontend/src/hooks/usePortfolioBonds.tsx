@@ -1,28 +1,25 @@
-// hooks/usePortfolioBonds.ts
 import { useState, useEffect } from 'react';
 import { portfolioService } from '../api/portfolioService';
 import type { PortfolioItem } from '../types/portfolio';
-
+import { useNotificationContext } from '../components/context/NotificationContext';
 
 export function usePortfolioBonds(portfolioId: number | undefined) {
   const [bonds, setBonds] = useState<PortfolioItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
+  const { showNotification } = useNotificationContext();
   const fetchBonds = async () => {
     if (!portfolioId) {
       setBonds([]);
-      setError("ID портфеля не указан");
+      showNotification("ID портфеля не указан", 'warning');
       return;
     }
     setIsLoading(true);
-    setError(null);
     try {
       const data = await portfolioService.getPortfolioBonds(portfolioId);
       setBonds(Array.isArray(data) ? data : []);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Ошибка загрузки облигаций');
-
+      const error = (err.response?.data?.message || 'Ошибка загрузки облигаций');
+      showNotification(error, 'error')
     } finally {
       setIsLoading(false);
     }
@@ -35,7 +32,6 @@ export function usePortfolioBonds(portfolioId: number | undefined) {
   return {
     bonds,
     isLoading,
-    error,
     refetch: fetchBonds
   };
 }

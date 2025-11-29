@@ -1,27 +1,30 @@
-// components/portfolio/AddToPortfolioModal.tsx
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useState } from "react";
 import type { Bond } from "../../types/bond";
 import { CreatePortfolioForm } from "./CreatePortfolioForm";
-import { usePortfolioManagement } from "../../hooks/usePortfolioManagement";
+import { usePortfolios } from '../../hooks/usePortfolios';
+import type { Portfolio } from '../../types/portfolio'
 
 interface AddToPortfolioModalProps {
   bond: Bond | null;
   isOpen: boolean;
   onClose: () => void;
+  portfolios: Portfolio[];           // ← Добавляем
+  isLoading: boolean;               // ← Добавляем  
+  createPortfolio: (name: string) => Promise<any>; // ← Добавляем
 }
 
-export function AddToPortfolioModal({ bond, isOpen, onClose }: AddToPortfolioModalProps) {
+export function AddToPortfolioModal({ bond,
+  isOpen,
+  onClose,
+  portfolios,
+  isLoading,
+  createPortfolio }: AddToPortfolioModalProps) {
   const [quantity, setQuantity] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
   const [sellDate, setSellDate] = useState("");
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | "">("");
-  const { portfolios, isLoading, error, addBondToPortfolio, refetch } = usePortfolioManagement();
-
-  const handlePortfolioCreated = (portfolioId: number) => {
-    setSelectedPortfolioId(portfolioId);
-    refetch();
-  };
+  const { addBondToPortfolio } = usePortfolios();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,11 +86,9 @@ export function AddToPortfolioModal({ bond, isOpen, onClose }: AddToPortfolioMod
               </label>
               {isLoading ? (
                 <div className="text-sm text-gray-500">Загрузка портфелей...</div>
-              ) : error ? (
-                <div className="text-sm text-red-500">{error}</div>
               ) : portfolios.length === 0 ? (
                 <CreatePortfolioForm
-                  onPortfolioCreated={handlePortfolioCreated}
+                  onCreatePortfolio={createPortfolio}
                   compact={true}
                 />
               ) : (
@@ -107,14 +108,12 @@ export function AddToPortfolioModal({ bond, isOpen, onClose }: AddToPortfolioMod
                   </select>
 
                   <CreatePortfolioForm
-                    onPortfolioCreated={handlePortfolioCreated}
+                    onCreatePortfolio={createPortfolio}
                     compact={true}
                   />
                 </div>
               )}
             </div>
-
-            {/* Остальные поля без изменений */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Количество

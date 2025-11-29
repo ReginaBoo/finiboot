@@ -1,38 +1,41 @@
-// hooks/usePortfolios.ts
 import { useState, useEffect } from 'react';
 import { portfolioService } from '../api/portfolioService';
 import type { Portfolio } from '../types/portfolio';
+import { useNotificationContext } from '../components/context/NotificationContext';
 
 export function usePortfolios() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { showNotification } = useNotificationContext();
 
   const fetchPortfolios = async () => {
     setIsLoading(true);
     setError(null);
     try {
       const data = await portfolioService.getUserPortfolios();
-      setPortfolios(data);
+      setPortfolios([...data]);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Ошибка загрузки портфелей';
       setError(errorMessage);
-      console.error('Error fetching portfolios:', err);
+      showNotification(errorMessage, 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
+
   const createPortfolio = async (name: string) => {
     try {
       setError(null);
       const newPortfolio = await portfolioService.createPortfolio(name);
+      showNotification('Портфель успешно создан', 'success');
       await fetchPortfolios();
       return newPortfolio;
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Ошибка создания портфеля';
       setError(errorMessage);
-      console.error('Error creating portfolio:', err);
+      showNotification(errorMessage, 'error');
       throw err;
     }
   };
@@ -41,13 +44,39 @@ export function usePortfolios() {
     try {
       setError(null);
       await portfolioService.deletePortfolio(portfolioId);
-      setPortfolios(prev => prev.filter(p => p.id !== portfolioId));
+      await fetchPortfolios();
+      showNotification('Портфель успешно удален', 'success');
       return true;
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Ошибка удаления портфеля';
       setError(errorMessage);
-      console.error('Error deleting portfolio:', err);
+      showNotification(errorMessage, 'error');
       throw err;
+    }
+  };
+
+  const addBondToPortfolio = async (
+    bondISIN: string,
+    quantity: number,
+    purchaseDate: string,
+    portfolioId: number,
+    sellDate: string,
+  ) => {
+    try {
+      await portfolioService.addBondToPortfolio(
+        portfolioId,
+        bondISIN,
+        quantity,
+        purchaseDate,
+        sellDate
+      );
+
+      showNotification("Облигация успешно добавлена в портфель!", 'success');
+      return true;
+    } catch (error: any) {
+      const errorMessage = error.message || 'Ошибка при загрузке облигаций';
+      showNotification(errorMessage, 'error');
+      return false;
     }
   };
 
@@ -61,6 +90,6 @@ export function usePortfolios() {
     error,
     createPortfolio,
     deletePortfolio,
-    refetch: fetchPortfolios
+    addBondToPortfolio
   };
 }

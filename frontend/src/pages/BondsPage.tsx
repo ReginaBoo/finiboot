@@ -1,5 +1,6 @@
 import { AppLayout } from "../components/layout/AppLayout";
 import { useBonds } from "../hooks/useBonds";
+import { usePortfolios } from "../hooks/usePortfolios";
 import { useSearchBonds } from "../hooks/useSearchBonds";
 import { BondsTableHeader } from "../components/bonds/BondsTableHeader";
 import { AddToPortfolioModal } from "../components/portfolio/AddToPortfolioModal";
@@ -11,10 +12,12 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import type { Bond } from "../types/bond";
 
 
+
 export default function BondsPage() {
   const { bonds, currentPage, totalPages, isLoading,
     handlePreviousPage, handleNextPage } = useBonds({ pageSize: 10 });
   const { query, setQuery, results, isLoading: isSearchLoading } = useSearchBonds();
+  const { portfolios, createPortfolio } = usePortfolios();
 
   const displayedBonds = query.trim() ? results : bonds;
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,8 +50,6 @@ export default function BondsPage() {
           <div className="flex-shrink-0">
             <BondsTableHeader />
           </div>
-
-
           {/* Список облигаций */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-1 py-3">
             {displayedBonds.map((bond) => (
@@ -92,6 +93,9 @@ export default function BondsPage() {
           setIsModalOpen(false);
           setSelectedBond(null);
         }}
+        portfolios={portfolios}
+        isLoading={isLoading}
+        createPortfolio={createPortfolio}
       />
     </>
 

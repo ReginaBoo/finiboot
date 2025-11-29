@@ -1,4 +1,3 @@
-// pages/PortfolioDetailPage.tsx
 import { useParams, Link } from 'react-router-dom';
 import { AppLayout } from "../components/layout/AppLayout";
 import { usePortfolioBonds } from "../hooks/usePortfolioBonds";
@@ -7,7 +6,7 @@ import { PortfolioBondRow } from "../components/portfolio/PortfolioBondRow";
 export default function PortfolioDetailPage() {
   const { id } = useParams<{ id: string }>();
   const portfolioId = id ? parseInt(id) : undefined;
-  const { bonds, isLoading, error, refetch } = usePortfolioBonds(portfolioId);
+  const { bonds, isLoading } = usePortfolioBonds(portfolioId);
 
   if (isLoading) {
     return (
@@ -19,21 +18,6 @@ export default function PortfolioDetailPage() {
     );
   }
 
-  if (error) {
-    return (
-      <AppLayout>
-        <div className="p-8 text-[#482A69]">
-          <div className="text-red-600 text-center mb-4">{error}</div>
-          <button
-            onClick={refetch}
-            className="px-4 py-2 bg-[#482A69] text-white rounded-md hover:bg-[#3A2155]"
-          >
-            Попробовать снова
-          </button>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout>

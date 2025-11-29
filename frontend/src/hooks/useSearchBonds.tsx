@@ -7,6 +7,7 @@ export function useSearchBonds() {
   const [results, setResults] = useState<Bond[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+
   useEffect(() => {
     const timeout = setTimeout(async () => {
       if (!query.trim()) {
@@ -23,7 +24,7 @@ export function useSearchBonds() {
       } finally {
         setIsLoading(false);
       }
-    }, 100);
+    }, 200);
 
     return () => clearTimeout(timeout);
   }, [query]);
