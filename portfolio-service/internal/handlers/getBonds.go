@@ -54,7 +54,7 @@ func GetBondsPortfolio(c *gin.Context) {
 
 		result = append(result, dto.PortfolioBond{
 			ISIN:         item.BondISIN,
-			Quantity:     item.Quantity,
+			Quantity:     item.TotalQuantity,
 			PurchaseDate: item.PurchaseDate.Format("2006-01-02"),
 			SellDate:     item.SellDate.Format("2006-01-02"),
 			Name:         bond.Name,

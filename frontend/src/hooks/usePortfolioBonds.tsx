@@ -7,6 +7,7 @@ export function usePortfolioBonds(portfolioId: number | undefined) {
   const [bonds, setBonds] = useState<PortfolioItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { showNotification } = useNotificationContext();
+
   const fetchBonds = async () => {
     if (!portfolioId) {
       setBonds([]);
@@ -32,6 +33,5 @@ export function usePortfolioBonds(portfolioId: number | undefined) {
   return {
     bonds,
     isLoading,
-    refetch: fetchBonds
   };
 }

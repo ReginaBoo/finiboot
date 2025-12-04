@@ -60,12 +60,12 @@ func AddBondToPortfolio(c *gin.Context) {
 	}
 
 	transaction := models.PortfolioTransaction{
-		PortfolioID: req.PortfolioID,
-		BondISIN:    req.Isin,
-		Type:        "BUY",
-		Quantity:    req.Quantity,
-		Price:       bond.Nominal, // Пока цена = номинал (потом добавишь реальную)
-		Date:        purchaseDate,
+		PortfolioID:  req.PortfolioID,
+		BondISIN:     req.Isin,
+		Quantity:     req.Quantity,
+		Price:        bond.Nominal,
+		PurchaseDate: purchaseDate,
+		SellDate:     sellDate,
 	}
 
 	if err := db.DB.Create(&transaction).Error; err != nil {
@@ -74,20 +74,56 @@ func AddBondToPortfolio(c *gin.Context) {
 	}
 
 	var item models.PortfolioItem
+	tx := db.DB.Begin()
 
-	item = models.PortfolioItem{
-		PortfolioID:  req.PortfolioID,
-		BondISIN:     req.Isin,
-		Quantity:     req.Quantity,
-		AveragePrice: bond.Nominal,
-		SellDate:     sellDate,
-		PurchaseDate: purchaseDate,
+	err = tx.Where("portfolio_id = ? AND bond_isin = ?", req.PortfolioID, req.Isin).First(&item).Error
+
+	if err != nil {
+
+		item = models.PortfolioItem{
+			PortfolioID:   req.PortfolioID,
+			BondISIN:      req.Isin,
+			TotalQuantity: req.Quantity,
+			PurchaseDate:  purchaseDate,
+			SellDate:      sellDate,
+			AveragePrice:  bond.Nominal,
+		}
+
+		if err := tx.Create(&item).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create portfolio item"})
+			return
+		}
+	} else {
+		newQuantity := item.TotalQuantity + req.Quantity
+
+		newAveragePrice := (item.AveragePrice*float64(item.TotalQuantity) +
+			bond.Nominal*float64(req.Quantity)) / float64(newQuantity)
+
+		if purchaseDate.Before(item.PurchaseDate) {
+			item.PurchaseDate = purchaseDate
+		}
+
+		if sellDate.After(item.SellDate) {
+			item.SellDate = sellDate
+		}
+
+		updates := map[string]interface{}{
+			"total_quantity": newQuantity,
+			"average_price":  newAveragePrice,
+			"purchase_date":  item.PurchaseDate,
+			"sell_date":      item.SellDate,
+		}
+
+		if err := tx.Model(&item).Updates(updates).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update portfolio item"})
+			return
+		}
 	}
-	// Решение: всегда проверяйте ошибки
-	if err := db.DB.Create(&item).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
+
+	tx.Commit()
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Bond added to portfolio",
 		"bond":    bond.Name,

@@ -1,4 +1,3 @@
-// context/NotificationContext.tsx
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
 type NotificationType = 'success' | 'error' | 'warning';
@@ -46,7 +45,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 export function useNotificationContext() {
   const context = useContext(NotificationContext);
   if (context === undefined) {
-    throw new Error('useNotificationContext must be used within a NotificationProvider');
+    throw new Error();
   }
   return context;
 }
