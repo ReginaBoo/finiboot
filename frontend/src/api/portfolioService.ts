@@ -1,5 +1,5 @@
 import api from "./api";
-import type { Portfolio, PortfolioItem } from "../types/portfolio";
+import type { Portfolio, PortfolioItem, PortfolioTransactions } from "../types/portfolio";
 
 const API_BASE_URL = '/portfolio';
 
@@ -20,7 +20,6 @@ export const portfolioService = {
       sell_date: sellDate,
     });
 
-
     return response.data;
   },
 
@@ -37,12 +36,17 @@ export const portfolioService = {
   },
 
   async getPortfolioBonds(portfolioId: number): Promise<PortfolioItem[]> {
-    const response = await api.get(`/portfolio/bonds?id=${portfolioId}`);
+    const response = await api.get(`${API_BASE_URL}/bonds?id=${portfolioId}`);
     return response.data;
   },
 
   async deletePortfolio(portfolioId: number): Promise<void> {
-    const response = await api.delete(`http://localhost:8080/api/portfolio/delete/${portfolioId}`);
+    const response = await api.delete(`${API_BASE_URL}/delete/${portfolioId}`);
+    return response.data
+  },
+
+  async getTransactions(portfolioId: number): Promise<PortfolioTransactions[]> {
+    const response = await api.get(`${API_BASE_URL}/transactions?id=${portfolioId}`);
     return response.data
   },
 };

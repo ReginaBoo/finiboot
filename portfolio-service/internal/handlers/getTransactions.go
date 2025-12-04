@@ -19,7 +19,5 @@ func GetPortfolioTransactions(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"transactions": transactions,
-	})
+	c.JSON(http.StatusOK, transactions)
 }
