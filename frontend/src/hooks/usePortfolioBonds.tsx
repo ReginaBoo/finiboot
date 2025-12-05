@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
 import { portfolioService } from '../api/portfolioService';
 import type { PortfolioItem } from '../types/portfolio';
-import { useNotificationContext } from '../components/context/NotificationContext';
-
+import toast from 'react-hot-toast';
 export function usePortfolioBonds(portfolioId: number | undefined) {
   const [bonds, setBonds] = useState<PortfolioItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { showNotification } = useNotificationContext();
 
   const fetchBonds = async () => {
     if (!portfolioId) {
       setBonds([]);
-      showNotification("ID портфеля не указан", 'warning');
+      toast.error("ID портфеля не указан");
       return;
     }
     setIsLoading(true);
@@ -20,7 +18,7 @@ export function usePortfolioBonds(portfolioId: number | undefined) {
       setBonds(Array.isArray(data) ? data : []);
     } catch (err: any) {
       const error = (err.response?.data?.message || 'Ошибка загрузки облигаций');
-      showNotification(error, 'error')
+      toast.error(error)
     } finally {
       setIsLoading(false);
     }

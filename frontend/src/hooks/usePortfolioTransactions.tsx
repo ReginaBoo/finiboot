@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { portfolioService } from '../api/portfolioService';
-import { useNotificationContext } from '../components/context/NotificationContext';
+import toast from 'react-hot-toast';
 import type { PortfolioTransactions } from "../types/portfolio";
 
 export const usePortfolioTransactions = (portfolioId?: number) => {
   const [transactions, setTransactions] = useState<PortfolioTransactions[]>([]);
-
-  const { showNotification } = useNotificationContext();
 
   const fetchTransactions = async () => {
     if (!portfolioId) {
@@ -19,7 +17,7 @@ export const usePortfolioTransactions = (portfolioId?: number) => {
       setTransactions([...data]);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Ошибка загрузки портфелей';
-      showNotification(errorMessage, 'error');
+      toast.error(errorMessage);
     }
   };
 

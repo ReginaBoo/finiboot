@@ -1,7 +1,6 @@
 export const BondsTableHeader = () => {
   return (
     <div className="flex  px-1">
-      {/* Пустое место для кнопки - должно совпадать с шириной кнопки в BondRow */}
       <div className="w-10 flex-shrink-0"></div>
 
       <div className="flex-1 grid grid-cols-13 gap-4 px-6 py-4 mr-4 text-[#331B4C] font-bold rounded-lg ">

@@ -1,4 +1,3 @@
-// components/portfolio/PortfolioBondRow.tsx
 import type { PortfolioItem } from "../../types/portfolio";
 
 interface PortfolioBondRowProps {

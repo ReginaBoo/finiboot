@@ -3,8 +3,7 @@ import { useState } from "react";
 import type { Bond } from "../../types/bond";
 import { CreatePortfolioForm } from "./CreatePortfolioForm";
 import { usePortfolios } from '../../hooks/usePortfolios';
-import { useNotificationContext } from '../context/NotificationContext';
-
+import toast from 'react-hot-toast';
 interface AddToPortfolioModalProps {
   bond: Bond | null;
   isOpen: boolean;
@@ -20,8 +19,6 @@ export function AddToPortfolioModal({ bond,
   const [sellDate, setSellDate] = useState("");
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | "">("");
   const { addBondToPortfolio, createPortfolio, portfolios } = usePortfolios();
-  const { showNotification } = useNotificationContext();
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +43,7 @@ export function AddToPortfolioModal({ bond,
       }
     } catch (error: any) {
       const errorMessage = error.message || 'Ошибка';
-      showNotification(errorMessage, 'error');
+      toast.error(errorMessage);
     }
   };
 
@@ -91,7 +88,7 @@ export function AddToPortfolioModal({ bond,
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#482A69] focus:border-transparent"
                     required
                   >
-                    <option value="">Выберите портфель</option>
+                    <option>Выберите портфель</option>
                     {portfolios.map((portfolio) => (
                       <option key={portfolio.id} value={portfolio.id}>
                         {portfolio.name}

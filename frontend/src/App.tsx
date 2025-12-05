@@ -5,12 +5,11 @@ import LoginPage from "./pages/LoginPage";
 import BondsPage from "./pages/BondsPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
-import { NotificationProvider } from './components/context/NotificationContext';
-import { GlobalNotification } from './components/common/GlobalNotification';
+import { Toaster } from 'react-hot-toast';
 export default function App() {
 
   return (
-    <NotificationProvider>
+    <>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<WelcomePage />}></Route>
@@ -21,7 +20,7 @@ export default function App() {
           <Route path="/portfolio/:id" element={<PortfolioDetailPage />}></Route>
         </Routes>
       </BrowserRouter >
-      <GlobalNotification />
-    </NotificationProvider>
+      <Toaster position="top-right" />
+    </>
   );
 }

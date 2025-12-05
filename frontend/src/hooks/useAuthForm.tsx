@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { authService } from '../api/authService';
 import type { LoginData, RegisterData } from '../types/auth';
 import { setTokens } from "../api/token";
-import { useNotificationContext } from '../components/context/NotificationContext';
-
+import toast from 'react-hot-toast';
 type AuthMode = 'login' | 'register';
 
 interface UseAuthFormProps {
@@ -18,7 +17,6 @@ export const useAuthForm = ({ mode, onSuccess }: UseAuthFormProps) => {
       : { email: '', password: '' }
   );
 
-  const { showNotification } = useNotificationContext();
 
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +35,7 @@ export const useAuthForm = ({ mode, onSuccess }: UseAuthFormProps) => {
     try {
       if (mode === 'register') {
         await authService.register(form as RegisterData);
-        showNotification("Регистрация прошла успешно!", 'success');
+        toast.success("Регистрация прошла успешно!");
         onSuccess?.();
       } else {
         const { access_token, refresh_token } = await authService.login(form as LoginData);
@@ -46,7 +44,7 @@ export const useAuthForm = ({ mode, onSuccess }: UseAuthFormProps) => {
         localStorage.setItem('refreshToken', refresh_token);
 
         setTokens(access_token, refresh_token)
-        showNotification("Вход выполнен успешно!", 'success');
+        toast.success("Вход выполнен успешно!");
         onSuccess?.();
       }
 
@@ -59,7 +57,7 @@ export const useAuthForm = ({ mode, onSuccess }: UseAuthFormProps) => {
       const errorMessage = err.response?.data?.error ||
         err.message ||
         `Ошибка ${mode === 'register' ? 'регистрации' : 'входа'}`;
-      showNotification(errorMessage, 'error');
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { portfolioService } from '../api/portfolioService';
 import type { Portfolio } from '../types/portfolio';
-import { useNotificationContext } from '../components/context/NotificationContext';
+import toast from 'react-hot-toast';
 
 export function usePortfolios() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { showNotification } = useNotificationContext();
 
   const fetchPortfolios = async () => {
     setIsLoading(true);
@@ -18,7 +17,7 @@ export function usePortfolios() {
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Ошибка загрузки портфелей';
       setError(errorMessage);
-      showNotification(errorMessage, 'error');
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -29,13 +28,13 @@ export function usePortfolios() {
     try {
       setError(null);
       const newPortfolio = await portfolioService.createPortfolio(name);
-      showNotification('Портфель успешно создан', 'success');
+      toast.success('Портфель успешно создан');
       await fetchPortfolios();
       return newPortfolio;
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Ошибка создания портфеля';
       setError(errorMessage);
-      showNotification(errorMessage, 'error');
+      toast.error(errorMessage);
       throw err;
     }
   };
@@ -45,12 +44,12 @@ export function usePortfolios() {
       setError(null);
       await portfolioService.deletePortfolio(portfolioId);
       await fetchPortfolios();
-      showNotification('Портфель успешно удален', 'success');
+      toast.success('Портфель успешно удален');
       return true;
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Ошибка удаления портфеля';
       setError(errorMessage);
-      showNotification(errorMessage, 'error');
+      toast.error(errorMessage);
       throw err;
     }
   };
@@ -71,11 +70,11 @@ export function usePortfolios() {
         sellDate
       );
 
-      showNotification("Облигация успешно добавлена в портфель!", 'success');
+      toast.success("Облигация успешно добавлена в портфель!");
       return true;
     } catch (error: any) {
       const errorMessage = error.message || 'Ошибка при загрузке облигаций';
-      showNotification(errorMessage, 'error');
+      toast.error(errorMessage);
       return false;
     }
   };

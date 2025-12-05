@@ -13,7 +13,7 @@ export default function PortfolioPage() {
 
   const showLoading = useDelayedLoading(isLoading, 500, 300);
 
-  if (showLoading) {
+  if (showLoading && portfolios.length === 0) {
     return (
       <AppLayout>
         <div className="p-8 text-[#482A69]">
@@ -36,7 +36,7 @@ export default function PortfolioPage() {
               />
             </span>
           </div>
-          {portfolios.length == 0 ? (
+          {!isLoading && portfolios.length == 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500 mb-4">У вас пока нет портфелей</p>
             </div>
@@ -57,7 +57,7 @@ export default function PortfolioPage() {
                     </Link>
                     <button
                       onClick={() => deletePortfolio(portfolio.id)}
-                      className="px-4 py-2 border-2 border-[#3A2155] text-[#3A2155] rounded-md transition-colors text-sm flex-1"
+                      className="px-4 py-2 border-2 border-[#3A2155] text-[#3A2155] rounded-md transition-colors text-sm "
                     >
                       Удалить
                     </button>

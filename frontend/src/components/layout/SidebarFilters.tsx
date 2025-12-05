@@ -1,4 +1,3 @@
-// components/layout/SidebarFilters.tsx
 interface SidebarFiltersProps {
   isCollapsed: boolean;
 }

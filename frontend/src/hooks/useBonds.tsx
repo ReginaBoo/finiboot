@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { bondsService } from '../api/bondsService';
 import type { Bond } from '../types/bond';
-import { useNotificationContext } from '../components/context/NotificationContext';
-
+import toast from 'react-hot-toast';
 interface UseBondsProps {
   initialPage?: number;
   pageSize?: number;
@@ -18,7 +17,6 @@ export const useBonds = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previousBonds, setPreviousBonds] = useState<Bond[]>([]);
-  const { showNotification } = useNotificationContext();
 
   useEffect(() => {
     const fetchBonds = async () => {
@@ -35,7 +33,7 @@ export const useBonds = ({
         setTotalPages(response.total_pages);
       } catch (err: any) {
         const errorMessage = err.message || 'Ошибка при загрузке облигаций';
-        showNotification(errorMessage, 'error');
+        toast.error(errorMessage);
         setError(errorMessage);
       } finally {
         setIsLoading(false);
