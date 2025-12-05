@@ -139,6 +139,7 @@ export function AddToPortfolioModal({ bond,
                 value={sellDate}
                 onChange={(e) => setSellDate(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#482A69] focus:border-transparent"
+                required
               />
             </div>
 
