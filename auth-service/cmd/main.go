@@ -1,24 +1,28 @@
 package main
 
 import (
-	"auth-service/internal/config"
-	"auth-service/internal/db"
 	"auth-service/internal/handlers"
+	"auth-service/internal/models"
+	"os"
+
+	"github.com/reginaboo/shared/db"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/reginaboo/shared/config"
 )
 
 func main() {
-	cfg := config.LoadConfig()
-	dsn := config.CreateDsn(cfg)
+	if os.Getenv("DB_HOST") == "" {
+		_ = godotenv.Load(".env")
+	}
+	cfg := config.NewConfig()
+	cfg.LoadConfig()
 
-	pool := db.Connect(cfg, dsn)
-	defer pool.Close()
-
-	db.InitDB(dsn)
+	db.InitDB(cfg.CreateDsn())
+	db.Migrate(&models.User{})
 
 	router := gin.Default()
-
 	router.POST("/register", handlers.Register)
 	router.POST("/login", handlers.Login)
 	router.POST("/refresh", handlers.RefreshToken)

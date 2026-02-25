@@ -1,14 +1,12 @@
 services:
-  # === AUTH DATABASE ===
+  # AUTH DATABASE
   auth-db:
     image: postgres:15
     container_name: auth-db
-    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_AUTH_USER}
       POSTGRES_PASSWORD: ${POSTGRES_AUTH_PASSWORD}
       POSTGRES_DB: ${POSTGRES_AUTH_DB}
-
     ports:
       - "5433:5432"
     volumes:
@@ -16,11 +14,10 @@ services:
     networks:
       - app-network
 
-  # === BONDS DATABASE ===
+  # BONDS DATABASE 
   bonds-db:
     image: postgres:15
     container_name: bonds-db
-    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_BONDS_USER}
       POSTGRES_PASSWORD: ${POSTGRES_BONDS_PASSWORD}
@@ -32,11 +29,10 @@ services:
     networks:
       - app-network
 
-  # === PORTFOLIO DATABASE ===
+  # PORTFOLIO DATABASE
   portfolio-db:
     image: postgres:15
     container_name: portfolio-db
-    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_PORTFOLIO_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PORTFOLIO_PASSWORD}
@@ -48,9 +44,11 @@ services:
     networks:
       - app-network
 
-  # === AUTH SERVICE ===
+  # AUTH SERVICE
   auth-service:
-    build: ./auth-service
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
     container_name: auth-service
     depends_on:
       - auth-db
@@ -60,7 +58,8 @@ services:
       DB_USER: ${POSTGRES_AUTH_USER}
       DB_PASSWORD: ${POSTGRES_AUTH_PASSWORD}
       DB_NAME: ${POSTGRES_AUTH_DB}
-
+      APP_PORT: ${APP_PORT_AUTH}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8001:8001"
     networks:
@@ -68,7 +67,9 @@ services:
 
   # === BONDS SERVICE ===
   bonds-service:
-    build: ./bonds-service
+    build:
+      context: .
+      dockerfile: ./bonds-service/Dockerfile
     container_name: bonds-service
     depends_on:
       - bonds-db
@@ -78,6 +79,9 @@ services:
       DB_USER: ${POSTGRES_BONDS_USER}
       DB_PASSWORD: ${POSTGRES_BONDS_PASSWORD}
       DB_NAME: ${POSTGRES_BONDS_DB}
+      APP_PORT: ${APP_PORT_BONDS}
+      TOKEN_API_TBANK: ${TOKEN_API_TBANK}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8002:8002"
     networks:
@@ -85,7 +89,9 @@ services:
 
   # === PORTFOLIO SERVICE ===
   portfolio-service:
-    build: ./portfolio-service
+    build:
+      context: .
+      dockerfile: ./portfolio-service/Dockerfile
     container_name: portfolio-service
     depends_on:
       - portfolio-db
@@ -95,6 +101,8 @@ services:
       DB_USER: ${POSTGRES_PORTFOLIO_USER}
       DB_PASSWORD: ${POSTGRES_PORTFOLIO_PASSWORD}
       DB_NAME: ${POSTGRES_PORTFOLIO_DB}
+      APP_PORT: ${APP_PORT_PORTFOLIO}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8003:8003"
     networks:

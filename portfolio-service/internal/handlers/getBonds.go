@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"portfolio-service/dto"
-	"portfolio-service/internal/db"
 	"portfolio-service/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/reginaboo/shared/db"
 )
 
 func GetBondsPortfolio(c *gin.Context) {

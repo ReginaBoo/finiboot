@@ -15,6 +15,20 @@ import (
 	"gorm.io/gorm"
 )
 
+//Писать в main
+// // Инициализируем сервис синхронизации
+// syncService := services.NewSyncService(db.DB)
+
+// // Синхронизация при старте, если нужно
+// if syncService.ShouldSyncOnStart() {
+// 	log.Println("Starting initial bonds synchronization...")
+// 	if err := syncService.SyncBondsFromTbank(); err != nil {
+// 		log.Printf("Initial sync failed: %v", err)
+// 	} else {
+// 		log.Println("Initial bonds synchronization completed")
+// 	}
+// }
+
 type SyncService struct {
 	db *gorm.DB
 }

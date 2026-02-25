@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 	"portfolio-service/dto"
-	"portfolio-service/internal/db"
 
 	"github.com/gin-gonic/gin"
+	"github.com/reginaboo/shared/db"
 )
 
 func GetPortfolios(c *gin.Context) {

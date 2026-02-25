@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"portfolio-service/dto"
-	"portfolio-service/internal/db"
 	"portfolio-service/internal/models"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/reginaboo/shared/db"
 )
 
 func AddBondToPortfolio(c *gin.Context) {

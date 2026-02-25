@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"auth-service/internal/db"
 	"auth-service/internal/models"
 	"net/http"
+
+	"github.com/reginaboo/shared/db"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"

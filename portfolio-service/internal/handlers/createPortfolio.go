@@ -3,8 +3,9 @@ package handlers
 import (
 	"net/http"
 	"portfolio-service/dto"
-	"portfolio-service/internal/db"
 	"portfolio-service/internal/models"
+
+	"github.com/reginaboo/shared/db"
 
 	"github.com/gin-gonic/gin"
 )

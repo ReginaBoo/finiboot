@@ -1,24 +1,30 @@
 package main
 
 import (
-	"portfolio-service/internal/config"
-	"portfolio-service/internal/db"
+	"os"
 	"portfolio-service/internal/handlers"
-	"portfolio-service/internal/middleware"
+	"portfolio-service/internal/models"
+
+	"github.com/reginaboo/shared/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/reginaboo/shared/config"
+	"github.com/reginaboo/shared/db"
 )
 
 func main() {
-	cfg := config.LoadConfig()
-	dsn := config.CreateDsn(cfg)
+	if os.Getenv("DB_HOST") == "" {
+		_ = godotenv.Load(".env")
+	}
 
-	pool := db.Connect(cfg, dsn)
-	defer pool.Close()
+	cfg := config.NewConfig()
+	cfg.LoadConfig()
 
-	db.InitDB(dsn)
+	db.InitDB(cfg.CreateDsn())
+	db.Migrate(&models.Portfolio{}, &models.PortfolioItem{}, &models.PortfolioTransaction{})
+
 	router := gin.Default()
-
 	auth := router.Group("/")
 	auth.Use(middleware.Authorization())
 
@@ -32,5 +38,5 @@ func main() {
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"message": "Portfolio service is running"})
 	})
-	router.Run(":" + "8003")
+	router.Run(":" + cfg.AppPort)
 }

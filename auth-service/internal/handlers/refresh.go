@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"auth-service/internal/config"
 	"auth-service/internal/utils"
 	"net/http"
 
@@ -21,7 +20,7 @@ func RefreshToken(c *gin.Context) {
 	}
 
 	token, err := jwt.Parse(input.RefreshToken, func(t *jwt.Token) (any, error) {
-		return []byte(config.LoadJWT()), nil
+		return []byte(utils.LoadJWT()), nil
 	})
 
 	if err != nil || !token.Valid {
@@ -30,7 +29,7 @@ func RefreshToken(c *gin.Context) {
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
-	userID := uint(claims["sub"].(float64))
+	userID := uint(claims["userID"].(float64))
 	newAccessToken, _ := utils.CreateAccessToken(userID)
 
 	c.JSON(http.StatusOK, gin.H{"access_token": newAccessToken})

@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"net/http"
-	"portfolio-service/internal/db"
 	"portfolio-service/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/reginaboo/shared/db"
 )
 
 func GetPortfolioTransactions(c *gin.Context) {

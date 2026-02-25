@@ -21,7 +21,6 @@ func Authorization() gin.HandlerFunc {
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-
 		secret := os.Getenv("JWT_SECRET")
 
 		if secret == "" {
@@ -43,6 +42,11 @@ func Authorization() gin.HandlerFunc {
 			return
 		}
 
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			if uid, ok := claims["userID"].(float64); ok {
+				c.Set("userID", uint(uid))
+			}
+		}
 		c.Next()
 	}
 }

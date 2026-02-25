@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"net/http"
-	"portfolio-service/internal/db"
 	"portfolio-service/internal/models"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/reginaboo/shared/db"
 	"gorm.io/gorm"
 )
 

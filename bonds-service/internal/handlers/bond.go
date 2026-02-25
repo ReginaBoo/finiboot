@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"bonds-service/internal/db"
 	"bonds-service/internal/models"
 	"net/http"
 	"strconv"
+
+	"github.com/reginaboo/shared/db"
 
 	"github.com/gin-gonic/gin"
 )
