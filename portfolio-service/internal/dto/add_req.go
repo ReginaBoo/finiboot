@@ -1,6 +1,6 @@
 package dto
 
-type AddBondReq struct {
+type RequestAddBond struct {
 	PortfolioID  uint   `json:"portfolio_id"`
 	Isin         string `json:"isin"`
 	Quantity     int    `json:"quantity"`

@@ -1,6 +1,6 @@
 package dto
 
-type PortfolioBond struct {
+type ResponsePortfolioBond struct {
 	ISIN         string `json:"isin"`
 	Quantity     int    `json:"quantity"`
 	PurchaseDate string `json:"purchase_date"`
@@ -11,7 +11,7 @@ type PortfolioBond struct {
 	Currency string  `json:"currency"`
 }
 
-type Portfolios struct {
+type ResponsePortfolios struct {
 	Id   uint   `json:"id"`
 	Name string `json:"name"`
 }

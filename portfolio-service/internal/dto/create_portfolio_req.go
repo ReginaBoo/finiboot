@@ -1,5 +1,5 @@
 package dto
 
-type CreatePortfolioRequest struct {
+type RequestCreatePortfolio struct {
 	Name string `json:"name" binding:"required"`
 }

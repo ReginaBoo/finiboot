@@ -1,6 +1,6 @@
 package dto
 
-type BondResponse struct {
+type ResponseBond struct {
 	ISIN     string      `json:"isin"`
 	FIGI     string      `json:"figi"`
 	Name     string      `json:"name"`

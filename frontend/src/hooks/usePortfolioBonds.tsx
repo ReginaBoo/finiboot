@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { portfolioService } from '../api/portfolioService';
 import type { PortfolioItem } from '../types/portfolio';
 import toast from 'react-hot-toast';
+
 export function usePortfolioBonds(portfolioId: number | undefined) {
   const [bonds, setBonds] = useState<PortfolioItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);

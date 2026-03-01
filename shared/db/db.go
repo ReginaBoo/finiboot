@@ -1,26 +1,24 @@
 package db
 
 import (
-	"log"
+	"fmt"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func InitDB(dsn string) {
-	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func InitDB(dsn string) (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Failed connect to database: %v", err)
+		return nil, fmt.Errorf("failed connect to database: %w", err)
 	}
+	return db, nil
 }
 
-func Migrate(models ...any) {
-	err := DB.AutoMigrate(models...)
+func Migrate(db *gorm.DB, models ...any) error {
+	err := db.AutoMigrate(models...)
 	if err != nil {
-		log.Fatalf("Failed to migrate models: %v", err)
+		return fmt.Errorf("failed to migrate models: %w", err)
 	}
-	log.Println("Migrated models")
+	return nil
 }

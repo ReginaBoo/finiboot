@@ -1,8 +1,10 @@
 package main
 
 import (
-	"auth-service/internal/handlers"
+	"auth-service/internal/api"
 	"auth-service/internal/models"
+	"auth-service/internal/service"
+	"log"
 	"os"
 
 	"github.com/reginaboo/shared/db"
@@ -16,19 +18,22 @@ func main() {
 	if os.Getenv("DB_HOST") == "" {
 		_ = godotenv.Load(".env")
 	}
-	cfg := config.NewConfig()
-	cfg.LoadConfig()
 
-	db.InitDB(cfg.CreateDsn())
-	db.Migrate(&models.User{})
+	cfg := config.NewConfig()
+	database, err := db.InitDB(cfg.CreateDsn())
+	if err != nil {
+		log.Fatalf("Cannot start server. %v", err)
+	}
+
+	if err := db.Migrate(database, &models.User{}); err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
+
+	authService := service.NewAuthService(database)
+	authHandler := api.NewAuthHandler(authService)
 
 	router := gin.Default()
-	router.POST("/register", handlers.Register)
-	router.POST("/login", handlers.Login)
-	router.POST("/refresh", handlers.RefreshToken)
+	authHandler.SetupRoutes(router)
 
-	router.GET("/ping", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{"message": "Auth service is running"})
-	})
 	router.Run(":" + cfg.AppPort)
 }

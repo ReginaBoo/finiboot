@@ -18,14 +18,12 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	return &Config{}
-}
-
-func (cfg *Config) LoadConfig() {
-	err := envconfig.Process("", cfg)
+	var cfg Config
+	err := envconfig.Process("", &cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
+	return &cfg
 }
 
 func (cfg *Config) CreateDsn() string {

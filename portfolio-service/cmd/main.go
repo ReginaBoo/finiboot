@@ -1,11 +1,11 @@
 package main
 
 import (
+	"log"
 	"os"
-	"portfolio-service/internal/handlers"
+	"portfolio-service/internal/api"
 	"portfolio-service/internal/models"
-
-	"github.com/reginaboo/shared/middleware"
+	"portfolio-service/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -19,24 +19,19 @@ func main() {
 	}
 
 	cfg := config.NewConfig()
-	cfg.LoadConfig()
+	database, err := db.InitDB(cfg.CreateDsn())
+	if err != nil {
+		log.Fatalf("Cannot start server: %v", err)
+	}
+	if err := db.Migrate(database, &models.Portfolio{}, &models.PortfolioItem{}, &models.PortfolioTransaction{}); err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
 
-	db.InitDB(cfg.CreateDsn())
-	db.Migrate(&models.Portfolio{}, &models.PortfolioItem{}, &models.PortfolioTransaction{})
+	portfolioService := service.NewPortfolioService(database)
+	portfolioHandler := api.NewPortfolioHandler(portfolioService)
 
 	router := gin.Default()
-	auth := router.Group("/")
-	auth.Use(middleware.Authorization())
+	portfolioHandler.SetupRoutes(router)
 
-	auth.POST("/bond/add", handlers.AddBondToPortfolio)
-	auth.GET("/bonds", handlers.GetBondsPortfolio)
-	auth.GET("/portfolios", handlers.GetPortfolios)
-	auth.POST("/create", handlers.CreatePortfolio)
-	auth.DELETE("/delete/:id", handlers.Deleteportfolio)
-	auth.GET("/transactions", handlers.GetPortfolioTransactions)
-
-	router.GET("/ping", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{"message": "Portfolio service is running"})
-	})
 	router.Run(":" + cfg.AppPort)
 }

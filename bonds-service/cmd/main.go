@@ -1,8 +1,10 @@
 package main
 
 import (
-	"bonds-service/internal/handlers"
+	"bonds-service/internal/api"
 	"bonds-service/internal/models"
+	"bonds-service/internal/service"
+	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +12,6 @@ import (
 
 	"github.com/reginaboo/shared/config"
 	"github.com/reginaboo/shared/db"
-	"github.com/reginaboo/shared/middleware"
 )
 
 func main() {
@@ -19,24 +20,19 @@ func main() {
 	}
 
 	cfg := config.NewConfig()
-	cfg.LoadConfig()
+	database, err := db.InitDB(cfg.CreateDsn())
+	if err != nil {
+		log.Fatalf("Cannot start server. %v", err)
+	}
 
-	db.InitDB(cfg.CreateDsn())
-	db.Migrate(&models.Bond{}, &models.Coupon{})
+	if err := db.Migrate(database, &models.Bond{}, &models.Coupon{}); err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
+
+	bondService := service.NewBondService(database)
+	bondHandler := api.NewBondHandler(bondService)
 
 	router := gin.Default()
-	router.GET("/bonds/:isin", handlers.GetBondbyISIN)
-	router.POST("/bonds/batch", handlers.GetBondsBatch)
-
-	auth := router.Group("/")
-	auth.Use(middleware.Authorization())
-
-	auth.GET("/bonds", handlers.GetAllBonds)
-	auth.GET("/search", handlers.SearchBonds)
-
-	router.GET("/ping", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{"message": "Bonds service is running"})
-	})
-
+	bondHandler.SetupRoutes(router)
 	router.Run(":" + cfg.AppPort)
 }
