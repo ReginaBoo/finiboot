@@ -3,6 +3,7 @@ package service
 import (
 	"bonds-service/internal/dto"
 	"bonds-service/internal/models"
+	"context"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -16,17 +17,17 @@ func NewBondService(db *gorm.DB) *BondService {
 	return &BondService{db: db}
 }
 
-func (s *BondService) GetBondByISIN(isin string) (*models.Bond, error) {
+func (s *BondService) GetBondByISIN(ctx context.Context, isin string) (*models.Bond, error) {
 	var bond models.Bond
-	if err := s.db.Preload("Coupons").Where("isin = ?", isin).First(&bond).Error; err != nil {
+	if err := s.db.WithContext(ctx).Preload("Coupons").Where("isin = ?", isin).First(&bond).Error; err != nil {
 		return nil, fmt.Errorf("failed to get bond %s: %w", isin, err)
 	}
 	return &bond, nil
 }
 
-func (s *BondService) GetAllBonds(page, size int) ([]models.Bond, int, int64, error) {
+func (s *BondService) GetAllBonds(ctx context.Context, page, size int) ([]models.Bond, int, int64, error) {
 	var totalElements int64
-	if err := s.db.Model(&models.Bond{}).Count(&totalElements).Error; err != nil {
+	if err := s.db.WithContext(ctx).Model(&models.Bond{}).Count(&totalElements).Error; err != nil {
 		return nil, 0, 0, fmt.Errorf("error when counting bonds: %w", err)
 	}
 
@@ -41,24 +42,24 @@ func (s *BondService) GetAllBonds(page, size int) ([]models.Bond, int, int64, er
 	return bonds, totalPages, totalElements, nil
 }
 
-func (s *BondService) GetBondsBatch(req dto.RequestBondBatch) ([]models.Bond, error) {
+func (s *BondService) GetBondsBatch(ctx context.Context, req dto.RequestBondBatch) ([]models.Bond, error) {
 	if len(req.ISINs) == 0 {
 		return []models.Bond{}, nil
 	}
 
 	var bonds []models.Bond
-	if err := s.db.Preload("Coupons").Where("isin IN ?", req.ISINs).Find(&bonds).Error; err != nil {
+	if err := s.db.WithContext(ctx).Preload("Coupons").Where("isin IN ?", req.ISINs).Find(&bonds).Error; err != nil {
 		return nil, fmt.Errorf("failed to get bonds: %w", err)
 	}
 
 	return bonds, nil
 }
 
-func (s *BondService) SearchBonds(query string) ([]models.Bond, error) {
+func (s *BondService) SearchBonds(ctx context.Context, query string) ([]models.Bond, error) {
 	var bonds []models.Bond
 	search := "%" + query + "%"
 
-	if err := s.db.Where("LOWER(name) LIKE LOWER(?) OR LOWER(ticker) LIKE LOWER(?) OR LOWER(isin) LIKE LOWER(?)", search, search, search).
+	if err := s.db.WithContext(ctx).Where("LOWER(name) LIKE LOWER(?) OR LOWER(ticker) LIKE LOWER(?) OR LOWER(isin) LIKE LOWER(?)", search, search, search).
 		Preload("Coupons").
 		Limit(100).
 		Find(&bonds).Error; err != nil {

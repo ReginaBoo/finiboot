@@ -31,12 +31,14 @@ func (h *BondHandler) SetupRoutes(router *gin.Engine) {
 }
 
 func (h *BondHandler) Ping(c *gin.Context) {
+
 	c.JSON(http.StatusOK, gin.H{"message": "Bonds service is running"})
 }
 
 func (h *BondHandler) GetBondByISIN(c *gin.Context) {
+	ctx := c.Request.Context()
 	isin := c.Param("isin")
-	bond, err := h.service.GetBondByISIN(isin)
+	bond, err := h.service.GetBondByISIN(ctx, isin)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -53,13 +55,14 @@ func (h *BondHandler) GetBondByISIN(c *gin.Context) {
 }
 
 func (h *BondHandler) GetBondsBatch(c *gin.Context) {
+	ctx := c.Request.Context()
 	var req dto.RequestBondBatch
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
 		return
 	}
 
-	bonds, err := h.service.GetBondsBatch(req)
+	bonds, err := h.service.GetBondsBatch(ctx, req)
 	if err != nil {
 		log.Printf("Failed to get bonds %v: %v", req.ISINs, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch bonds"})
@@ -70,9 +73,10 @@ func (h *BondHandler) GetBondsBatch(c *gin.Context) {
 }
 
 func (h *BondHandler) GetBonds(c *gin.Context) {
+	ctx := c.Request.Context()
 	page, size := parsePagination(c)
 
-	bonds, totalPages, totalElements, err := h.service.GetAllBonds(page, size)
+	bonds, totalPages, totalElements, err := h.service.GetAllBonds(ctx, page, size)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch bonds"})
 		return
@@ -90,6 +94,7 @@ func (h *BondHandler) GetBonds(c *gin.Context) {
 }
 
 func (h *BondHandler) SearchBonds(c *gin.Context) {
+	ctx := c.Request.Context()
 	query := strings.TrimSpace(c.Query("q"))
 
 	if query == "" {
@@ -97,7 +102,7 @@ func (h *BondHandler) SearchBonds(c *gin.Context) {
 		return
 	}
 
-	bonds, err := h.service.SearchBonds(query)
+	bonds, err := h.service.SearchBonds(ctx, query)
 	if err != nil {
 		log.Printf("Failed to get bonds: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch bonds"})

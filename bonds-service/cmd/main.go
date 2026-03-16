@@ -4,8 +4,10 @@ import (
 	"bonds-service/internal/api"
 	"bonds-service/internal/models"
 	"bonds-service/internal/service"
+	"context"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -32,6 +34,17 @@ func main() {
 	bondService := service.NewBondService(database)
 	bondHandler := api.NewBondHandler(bondService)
 
+	client, err := service.NewTBankClient()
+	if err != nil {
+		log.Fatalf("Cant create tbank client: %v", err)
+	}
+
+	syncService := service.NewSyncService(database, client)
+	ctx := context.Background()
+
+	worker := service.NewSyncWorker(syncService, 1*time.Hour)
+
+	worker.Start(ctx)
 	router := gin.Default()
 	bondHandler.SetupRoutes(router)
 	router.Run(":" + cfg.AppPort)
