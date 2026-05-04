@@ -1,0 +1,56 @@
+.portfolio-bond-row {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: box-shadow 0.3s;
+  cursor: default;
+  display: flex;
+
+
+  .header {
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+
+    h3 {
+      font-weight: 600;
+      font-size: 1.125rem;
+      color: #482A69;
+      margin: 0;
+    }
+
+    p {
+      font-size: 0.875rem;
+      color: #4B5563;
+      margin: 0;
+    }
+  }
+
+  .details {
+    padding: 0;
+    display: grid;
+    margin-left: auto;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9rem;
+    font-size: 0.875rem;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .detail-item {
+      span {
+        color: #6B7280;
+        font-size: 0.875rem;
+      }
+
+      p {
+        font-weight: 500;
+        margin: 0;
+      }
+    }
+  }
+}

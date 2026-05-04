@@ -12,10 +12,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	_ "bonds-service/docs"
+
 	"github.com/reginaboo/shared/config"
 	"github.com/reginaboo/shared/db"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title           FiniBoot Bonds Service API
+
+// @host      localhost:8002
+// @BasePath  /
+// @query.collection.format multi
 func main() {
 	if os.Getenv("DB_HOST") == "" {
 		_ = godotenv.Load(".env")
@@ -46,6 +55,8 @@ func main() {
 
 	worker.Start(ctx)
 	router := gin.Default()
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	bondHandler.SetupRoutes(router)
 	router.Run(":" + cfg.AppPort)
 }

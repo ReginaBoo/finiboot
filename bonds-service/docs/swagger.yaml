@@ -1,0 +1,255 @@
+basePath: /
+definitions:
+  dto.RequestBondBatch:
+    properties:
+      isins:
+        items:
+          type: string
+        type: array
+    type: object
+  dto.ResponseBonds:
+    properties:
+      content:
+        items:
+          $ref: '#/definitions/models.Bond'
+        type: array
+      number:
+        type: integer
+      size:
+        type: integer
+      total_elements:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  models.Bond:
+    properties:
+      amortization_flag:
+        type: boolean
+      bond_id:
+        type: integer
+      bond_type:
+        type: string
+      buy_available_flag:
+        type: boolean
+      country_of_risk_name:
+        type: string
+      coupon_quantity_per_year:
+        type: integer
+      coupons:
+        items:
+          $ref: '#/definitions/models.Coupon'
+        type: array
+      created_at:
+        type: string
+      currency:
+        type: string
+      figi:
+        type: string
+      floating_coupon_flag:
+        type: boolean
+      initial_nominal:
+        type: number
+      isin:
+        type: string
+      maturity_date:
+        type: string
+      name:
+        type: string
+      nominal:
+        type: number
+      perpetual_flag:
+        type: boolean
+      placement_date:
+        type: string
+      sector:
+        type: string
+      sell_available_flag:
+        type: boolean
+      state_reg_date:
+        type: string
+      ticker:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Coupon:
+    properties:
+      coupon_date:
+        description: дата выплаты
+        type: string
+      coupon_end:
+        type: string
+      coupon_id:
+        type: integer
+      coupon_number:
+        type: integer
+      coupon_period:
+        type: integer
+      coupon_start:
+        type: string
+      coupon_type:
+        description: тип купона
+        type: string
+      created_at:
+        type: string
+      figi:
+        type: string
+      pay_one_bond:
+        description: сумма выплаты на одну облигацию
+        type: number
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Сервис для управления и поиска облигаций в системе FiniBoot.
+  title: FiniBoot Bonds Service API
+  version: "1.0"
+paths:
+  /bonds:
+    get:
+      description: Возвращает постраничный список всех доступных облигаций
+      parameters:
+      - description: Номер страницы (по умолчанию 0)
+        in: query
+        name: page
+        type: integer
+      - description: Размер страницы (по умолчанию 10, макс 100)
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseBonds'
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Список всех облигаций
+      tags:
+      - bonds
+  /bonds/{isin}:
+    get:
+      description: Возвращает подробную информацию об облигации по её уникальному
+        коду ISIN
+      parameters:
+      - description: ISIN код (например, RU000A1038V6)
+        in: path
+        name: isin
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Bond'
+        "404":
+          description: Облигация не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить облигацию по ISIN
+      tags:
+      - bonds
+  /bonds/batch:
+    post:
+      consumes:
+      - application/json
+      description: Принимает массив ISIN и возвращает список найденных облигаций
+      parameters:
+      - description: Список ISIN кодов
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestBondBatch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Bond'
+            type: array
+        "400":
+          description: Некорректный JSON
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить несколько облигаций сразу (Batch)
+      tags:
+      - bonds
+  /ping:
+    get:
+      description: Простой пинг для проверки работоспособности API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Проверка доступности сервиса
+      tags:
+      - system
+  /search:
+    get:
+      description: Ищет облигации по названию или частичному совпадению
+      parameters:
+      - description: Поисковый запрос (минимум 1 символ)
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Bond'
+            type: array
+        "400":
+          description: Пустой запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Поиск облигаций
+      tags:
+      - bonds
+swagger: "2.0"

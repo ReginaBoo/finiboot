@@ -22,19 +22,36 @@ func NewBondHandler(service *service.BondService) *BondHandler {
 }
 
 func (h *BondHandler) SetupRoutes(router *gin.Engine) {
-	router.POST("/bonds/batch", h.GetBondsBatch)
+	router.POST("/batch", h.GetBondsBatch)
 
-	router.GET("/bonds", h.GetBonds)
-	router.GET("/bonds/:isin", h.GetBondByISIN)
+	router.GET("/", h.GetBonds)
+	router.GET("/:isin", h.GetBondByISIN)
 	router.GET("/ping", h.Ping)
 	router.GET("/search", h.SearchBonds)
 }
 
+// Ping godoc
+// @Summary      Проверка доступности сервиса
+// @Description  Простой пинг для проверки работоспособности API
+// @Tags         system
+// @Produce      json
+// @Success      200  {object}  map[string]string
+// @Router       /ping [get]
 func (h *BondHandler) Ping(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Bonds service is running"})
 }
 
+// GetBondByISIN godoc
+// @Summary      Получить облигацию по ISIN
+// @Description  Возвращает подробную информацию об облигации по её уникальному коду ISIN
+// @Tags         bonds
+// @Produce      json
+// @Param        isin  path      string  true  "ISIN код (например, RU000A1038V6)"
+// @Success      200   {object}  models.Bond
+// @Failure      404   {object}  map[string]string "Облигация не найдена"
+// @Failure      500   {object}  map[string]string "Ошибка сервера"
+// @Router       /bonds/{isin} [get]
 func (h *BondHandler) GetBondByISIN(c *gin.Context) {
 	ctx := c.Request.Context()
 	isin := c.Param("isin")
@@ -54,6 +71,17 @@ func (h *BondHandler) GetBondByISIN(c *gin.Context) {
 	c.JSON(http.StatusOK, bond)
 }
 
+// GetBondsBatch godoc
+// @Summary      Получить несколько облигаций сразу (Batch)
+// @Description  Принимает массив ISIN и возвращает список найденных облигаций
+// @Tags         bonds
+// @Accept       json
+// @Produce      json
+// @Param        request  body      dto.RequestBondBatch  true  "Список ISIN кодов"
+// @Success      200      {array}   models.Bond
+// @Failure      400      {object}  map[string]string "Некорректный JSON"
+// @Failure      500      {object}  map[string]string "Ошибка сервера"
+// @Router       /bonds/batch [post]
 func (h *BondHandler) GetBondsBatch(c *gin.Context) {
 	ctx := c.Request.Context()
 	var req dto.RequestBondBatch
@@ -72,6 +100,16 @@ func (h *BondHandler) GetBondsBatch(c *gin.Context) {
 	c.JSON(http.StatusOK, bonds)
 }
 
+// GetBonds godoc
+// @Summary      Список всех облигаций
+// @Description  Возвращает постраничный список всех доступных облигаций
+// @Tags         bonds
+// @Produce      json
+// @Param        page  query     int  false  "Номер страницы (по умолчанию 0)"
+// @Param        size  query     int  false  "Размер страницы (по умолчанию 10, макс 100)"
+// @Success      200   {object}  dto.ResponseBonds
+// @Failure      500   {object}  map[string]string "Ошибка сервера"
+// @Router       /bonds [get]
 func (h *BondHandler) GetBonds(c *gin.Context) {
 	ctx := c.Request.Context()
 	page, size := parsePagination(c)
@@ -93,6 +131,16 @@ func (h *BondHandler) GetBonds(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// SearchBonds godoc
+// @Summary      Поиск облигаций
+// @Description  Ищет облигации по названию или частичному совпадению
+// @Tags         bonds
+// @Produce      json
+// @Param        q    query     string  true  "Поисковый запрос (минимум 1 символ)"
+// @Success      200  {array}   models.Bond
+// @Failure      400  {object}  map[string]string "Пустой запрос"
+// @Failure      500  {object}  map[string]string "Ошибка сервера"
+// @Router       /search [get]
 func (h *BondHandler) SearchBonds(c *gin.Context) {
 	ctx := c.Request.Context()
 	query := strings.TrimSpace(c.Query("q"))

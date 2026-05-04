@@ -1,0 +1,85 @@
+@use './variables';
+
+.portfolio-detail {
+  padding: 20px;
+  color: variables.$color-text-purple;
+
+  &__header {
+    margin-bottom: 20px;
+
+    & .portfolio-detail__back {
+      color: variables.$color-text-purple;
+      text-decoration: none;
+
+      &:hover {
+        color: #3A2155;
+      }
+    }
+  }
+
+  &__tabs {
+    display: flex;
+    margin-bottom: 20px;
+
+    & .portfolio-detail__tab {
+      padding: 10px 15px;
+      font-weight: 500;
+      font-size: 14px;
+      border-bottom: 2px solid transparent;
+      margin-right: 10px;
+      cursor: pointer;
+      background: none;
+
+      &.active {
+        border-color: variables.$color-text-purple;
+        color: variables.$color-text-purple;
+      }
+
+      &:hover {
+        color: #3A2155;
+      }
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__bond-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 40px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+
+    & p {
+      margin-bottom: 15px;
+      color: #666;
+    }
+
+    & .portfolio-detail__add-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #482A69;
+      color: #fff;
+      border-radius: 6px;
+      text-decoration: none;
+
+      &:hover {
+        background-color: #3A2155;
+      }
+    }
+  }
+
+  &__loading {
+    padding: 50px;
+    text-align: center;
+  }
+}

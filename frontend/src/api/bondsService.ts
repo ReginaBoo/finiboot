@@ -4,7 +4,7 @@ const API_BASE_URL = '/bonds';
 
 export const bondsService = {
   async getBonds(page: number = 0, size: number = 7): Promise<BondsResponse> {
-    const response = await api.get<BondsResponse>(`${API_BASE_URL}/bonds`, {
+    const response = await api.get<BondsResponse>(`${API_BASE_URL}/`, {
       params: { page, size }
     });
     return response.data;

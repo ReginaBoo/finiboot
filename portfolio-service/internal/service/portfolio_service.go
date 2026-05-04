@@ -81,7 +81,7 @@ func (s *PortfolioService) validatePortfolioExists(ctx context.Context, id uint)
 }
 
 func (s *PortfolioService) fetchBondInfo(ctx context.Context, isin string) (*dto.ResponseBond, error) {
-	url := fmt.Sprintf("%s/bonds/%s", bondsServiceURL, isin)
+	url := fmt.Sprintf("%s/%s", bondsServiceURL, isin)
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -267,7 +267,7 @@ func (s *PortfolioService) fetchBondsInPortfolio(ctx context.Context, isins []st
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	url := fmt.Sprintf("%s/bonds/batch", bondsServiceURL)
+	url := fmt.Sprintf("%s/batch", bondsServiceURL)
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
