@@ -25,6 +25,6 @@ type Bond struct {
 	BondType              string     `json:"bond_type"`
 	CreatedAt             time.Time  `json:"created_at"`
 	UpdatedAt             time.Time  `json:"updated_at"`
-
-	Coupons []Coupon `gorm:"foreignKey:BondFIGI;references:FIGI"`
+	LastPrice             float64    `json:"last_price"`
+	Coupons               []Coupon   `gorm:"foreignKey:BondFIGI;references:FIGI"`
 }

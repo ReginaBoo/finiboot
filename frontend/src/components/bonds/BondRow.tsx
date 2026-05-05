@@ -13,7 +13,7 @@ export const BondRow = ({ bond }: BondRowProps) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className={` mb-2 transition-all duration-300  ${isOpen ? "border-1  border-[#482A69]/30 rounded-xl shadow-[0px_0px_15px_rgba(72,42,105,0.2)]  " : "hover:shadow-[0px_0px_15px_rgba(72,42,105,0.2)] hover:rounded-xl"}`}>
-      <div className={`grid grid-cols-13 gap-4 px-6 py-4 ${isOpen ? " border-b-1 border-[#482A69]/10" : ""}`}>
+      <div className={`grid grid-cols-15 gap-4 px-6 py-4 ${isOpen ? " border-b-1 border-[#482A69]/10" : ""}`}>
         {/* Название и тикер */}
         <div className="col-span-2 text-left">
           <p className="font-medium text-[#482A69]">{bond.name}</p>
@@ -27,6 +27,12 @@ export const BondRow = ({ bond }: BondRowProps) => {
           </p>
         </div>
 
+        {/* Цена */}
+        <div className="col-span-2 text-center">
+          <p className="font-medium text-[#482A69]">
+            {bond.last_price?.toFixed(2)} ₽
+          </p>
+        </div>
 
         {/* Купон */}
         <div className="col-span-2 text-center">

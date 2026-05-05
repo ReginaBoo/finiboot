@@ -16,6 +16,7 @@ export interface Bond {
   placement_date: string;
   perpetual_flag: boolean;
   maturity_date: string;
+  last_price: number;
   Coupons?: Coupon[];
 }
 

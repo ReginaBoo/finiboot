@@ -38,7 +38,6 @@ func (h *BondHandler) SetupRoutes(router *gin.Engine) {
 // @Success      200  {object}  map[string]string
 // @Router       /ping [get]
 func (h *BondHandler) Ping(c *gin.Context) {
-
 	c.JSON(http.StatusOK, gin.H{"message": "Bonds service is running"})
 }
 
@@ -55,6 +54,7 @@ func (h *BondHandler) Ping(c *gin.Context) {
 func (h *BondHandler) GetBondByISIN(c *gin.Context) {
 	ctx := c.Request.Context()
 	isin := c.Param("isin")
+
 	bond, err := h.service.GetBondByISIN(ctx, isin)
 
 	if err != nil {

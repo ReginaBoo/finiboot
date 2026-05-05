@@ -82,6 +82,9 @@ services:
       APP_PORT: ${APP_PORT_BONDS}
       TOKEN_API_TBANK: ${TOKEN_API_TBANK}
       JWT_SECRET: ${JWT_SECRET}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+
     ports:
       - "8002:8002"
     networks:
@@ -125,12 +128,17 @@ services:
       - "8080:8080"
     networks:
       - app-network
-
+  redis:
+    image: redis:7-alpine
+    container_name: finiboot-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
 volumes:
   auth_data:
   bonds_data:
   portfolio_data:
-
 
 networks:
   app-network:

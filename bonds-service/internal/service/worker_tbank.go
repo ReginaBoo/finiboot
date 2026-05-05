@@ -11,16 +11,14 @@ type Worker struct {
 	interval time.Duration
 }
 
-func NewSyncWorker(service *SyncService, interval time.Duration) *Worker {
+func NewSyncWorker(service *SyncService) *Worker {
 	return &Worker{
-		service:  service,
-		interval: interval,
+		service: service,
 	}
 }
 func (w *Worker) Start(ctx context.Context) {
-
-	ticker := time.NewTicker(w.interval)
-
+	priceTicker := time.NewTicker(2 * time.Minute)
+	fullSyncTicker := time.NewTicker(1 * time.Hour)
 	go func() {
 
 		for {
@@ -29,17 +27,15 @@ func (w *Worker) Start(ctx context.Context) {
 			case <-ctx.Done():
 				return
 
-			case <-ticker.C:
-
-				log.Println("sync started")
-
-				err := w.service.SyncBondsFromTbank()
-
-				if err != nil {
-					log.Println("sync error:", err)
+			case <-priceTicker.C:
+				if err := w.service.UpdateMarketPrices(); err != nil {
+					log.Println("Price update error:", err)
 				}
 
-				log.Println("sync finished")
+			case <-fullSyncTicker.C:
+				if err := w.service.SyncBondsFromTbank(); err != nil {
+					log.Println("sync error:", err)
+				}
 			}
 		}
 

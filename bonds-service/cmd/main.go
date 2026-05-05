@@ -2,12 +2,12 @@ package main
 
 import (
 	"bonds-service/internal/api"
+	"bonds-service/internal/cache"
 	"bonds-service/internal/models"
 	"bonds-service/internal/service"
 	"context"
 	"log"
 	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -40,7 +40,9 @@ func main() {
 		log.Fatalf("Migration failed: %v", err)
 	}
 
-	bondService := service.NewBondService(database)
+	priceCache := cache.NewPriceCache(cfg.RedisHost, cfg.RedisPort)
+
+	bondService := service.NewBondService(database, priceCache)
 	bondHandler := api.NewBondHandler(bondService)
 
 	client, err := service.NewTBankClient()
@@ -48,10 +50,10 @@ func main() {
 		log.Fatalf("Cant create tbank client: %v", err)
 	}
 
-	syncService := service.NewSyncService(database, client)
+	syncService := service.NewSyncService(database, client, priceCache)
 	ctx := context.Background()
 
-	worker := service.NewSyncWorker(syncService, 1*time.Hour)
+	worker := service.NewSyncWorker(syncService)
 
 	worker.Start(ctx)
 	router := gin.Default()

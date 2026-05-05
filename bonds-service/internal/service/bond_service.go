@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bonds-service/internal/cache"
 	"bonds-service/internal/dto"
 	"bonds-service/internal/models"
 	"context"
@@ -10,11 +11,12 @@ import (
 )
 
 type BondService struct {
-	db *gorm.DB
+	db    *gorm.DB
+	cache *cache.PriceCache
 }
 
-func NewBondService(db *gorm.DB) *BondService {
-	return &BondService{db: db}
+func NewBondService(db *gorm.DB, priceCache *cache.PriceCache) *BondService {
+	return &BondService{db: db, cache: priceCache}
 }
 
 func (s *BondService) GetBondByISIN(ctx context.Context, isin string) (*models.Bond, error) {
@@ -22,6 +24,12 @@ func (s *BondService) GetBondByISIN(ctx context.Context, isin string) (*models.B
 	if err := s.db.WithContext(ctx).Preload("Coupons").Where("isin = ?", isin).First(&bond).Error; err != nil {
 		return nil, fmt.Errorf("failed to get bond %s: %w", isin, err)
 	}
+
+	cachedPrice, err := s.cache.GetPrice(ctx, isin)
+	if err == nil {
+		bond.LastPrice = cachedPrice
+	}
+
 	return &bond, nil
 }
 
@@ -37,6 +45,13 @@ func (s *BondService) GetAllBonds(ctx context.Context, page, size int) ([]models
 	offset := page * size
 	if err := s.db.Preload("Coupons").Offset(offset).Limit(size).Find(&bonds).Error; err != nil {
 		return nil, 0, 0, fmt.Errorf("error when receiving the bonds: %w", err)
+	}
+
+	for i := range bonds {
+		price, err := s.cache.GetPrice(ctx, bonds[i].ISIN)
+		if err == nil {
+			bonds[i].LastPrice = price
+		}
 	}
 
 	return bonds, totalPages, totalElements, nil

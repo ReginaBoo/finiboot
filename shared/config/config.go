@@ -15,6 +15,8 @@ type Config struct {
 	DBName       string `envconfig:"DB_NAME"`
 	AppPort      string `envconfig:"APP_PORT"`
 	TinkoffToken string `envconfig:"TOKEN_API_TBANK"`
+	RedisHost    string `envconfig:"REDIS_HOST"`
+	RedisPort    string `envconfig:"REDIS_PORT"`
 }
 
 func NewConfig() *Config {

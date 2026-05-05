@@ -1,7 +1,9 @@
 package service
 
 import (
+	"bonds-service/internal/cache"
 	"bonds-service/internal/models"
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -14,17 +16,18 @@ import (
 type SyncService struct {
 	db     *gorm.DB
 	client *investgo.Client
+	cache  *cache.PriceCache
 }
 
-func NewSyncService(db *gorm.DB, client *investgo.Client) *SyncService {
+func NewSyncService(db *gorm.DB, client *investgo.Client, priceCache *cache.PriceCache) *SyncService {
 	return &SyncService{
 		db:     db,
 		client: client,
+		cache:  priceCache,
 	}
 }
 
 func (s *SyncService) SyncBondsFromTbank() error {
-
 	instrumentsService := s.client.NewInstrumentsServiceClient()
 
 	bondsResp, err := instrumentsService.Bonds(pb.InstrumentStatus_INSTRUMENT_STATUS_ALL)
@@ -38,7 +41,6 @@ func (s *SyncService) SyncBondsFromTbank() error {
 	successCount := 0
 
 	for _, bond := range bonds {
-
 		if !isValidBond(bond) {
 			continue
 		}
@@ -68,6 +70,47 @@ func (s *SyncService) SyncBondsFromTbank() error {
 	return nil
 }
 
+func (s *SyncService) UpdateMarketPrices() error {
+	var bonds []models.Bond
+	if err := s.db.Select("figi", "isin", "nominal").Find(&bonds).Error; err != nil {
+		return err
+	}
+
+	figis := make([]string, len(bonds))
+	type bondInfo struct {
+		isin    string
+		nominal float64
+	}
+	infoMap := make(map[string]bondInfo)
+
+	for i, b := range bonds {
+		figis[i] = b.FIGI
+		infoMap[b.FIGI] = bondInfo{isin: b.ISIN, nominal: b.Nominal}
+	}
+
+	marketDataService := s.client.NewMarketDataServiceClient()
+	lastPricesResp, err := marketDataService.GetLastPrices(figis)
+	if err != nil {
+		return err
+	}
+
+	for _, lp := range lastPricesResp.GetLastPrices() {
+		percentPrice := ToFloat(lp.GetPrice())
+
+		info := infoMap[lp.GetFigi()]
+
+		actualPriceInRub := (info.nominal * percentPrice) / 100
+
+		err := s.cache.SetPrice(context.Background(), info.isin, actualPriceInRub)
+		if err != nil {
+			log.Printf("Failed to cache price for %s: %v", info.isin, err)
+		}
+	}
+
+	log.Printf("Market prices updated for %d bonds", len(lastPricesResp.GetLastPrices()))
+	return nil
+}
+
 func (s *SyncService) createOrUpdateBond(pbBond *pb.Bond) error {
 
 	var maturityDate, placementDate, stateRegDate *time.Time
@@ -91,8 +134,8 @@ func (s *SyncService) createOrUpdateBond(pbBond *pb.Bond) error {
 		Ticker:                pbBond.Ticker,
 		Name:                  pbBond.Name,
 		Currency:              pbBond.Currency,
-		Nominal:               moneyToFloat(pbBond.Nominal),
-		InitialNominal:        moneyToFloat(pbBond.InitialNominal),
+		Nominal:               ToFloat(pbBond.Nominal),
+		InitialNominal:        ToFloat(pbBond.InitialNominal),
 		CouponQuantityPerYear: int(pbBond.CouponQuantityPerYear),
 		FloatingCouponFlag:    pbBond.FloatingCouponFlag,
 		PerpetualFlag:         pbBond.PerpetualFlag,
@@ -141,7 +184,7 @@ func (s *SyncService) syncCouponsForBond(instrumentsService *investgo.Instrument
 			BondFIGI:     pbBond.Figi,
 			CouponNumber: event.CouponNumber,
 			CouponDate:   event.CouponDate.AsTime(),
-			PayOneBond:   moneyToFloat(event.PayOneBond),
+			PayOneBond:   ToFloat(event.PayOneBond),
 			CouponType:   event.CouponType.String(),
 		}
 
@@ -181,7 +224,7 @@ func (s *SyncService) syncCouponsForBond(instrumentsService *investgo.Instrument
 }
 
 func isValidBond(bond *pb.Bond) bool {
-	if moneyToFloat(bond.Nominal) == 0 {
+	if ToFloat(bond.Nominal) == 0 {
 		return false
 	}
 
@@ -196,9 +239,14 @@ func isValidBond(bond *pb.Bond) bool {
 	return true
 }
 
-func moneyToFloat(m *pb.MoneyValue) float64 {
-	if m == nil {
+type MoneyLike interface {
+	GetUnits() int64
+	GetNano() int32
+}
+
+func ToFloat[T MoneyLike](m T) float64 {
+	if any(m) == nil {
 		return 0
 	}
-	return float64(m.Units) + float64(m.Nano)/1e9
+	return float64(m.GetUnits()) + float64(m.GetNano())/1e9
 }
