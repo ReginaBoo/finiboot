@@ -50,6 +50,30 @@ export const translateSector = (sector?: string): string => {
   return map[sector ?? ""] || "Неизвестно";
 };
 
+export const SECTORS = [
+  { id: 'government', name: 'Государственные' },
+  { id: 'financial', name: 'Финансовый сектор' },
+  { id: 'industrials', name: 'Промышленность' },
+  { id: 'consumer', name: 'Потребительский сектор' },
+  { id: 'materials', name: 'Сырьевой сектор' },
+  { id: 'energy', name: 'Энергетика' },
+  { id: 'utilities', name: 'Коммунальные услуги' },
+  { id: 'real_estate', name: 'Недвижимость' },
+  { id: 'it', name: 'ИТ' },
+  { id: 'telecom', name: 'Телекоммуникации' },
+  { id: 'health_care', name: 'Здравоохранение' },
+  { id: 'municipal', name: 'Муниципальные облигации' },
+  { id: 'other', name: 'Прочее' },
+];
+
+
+export const COUPON_OPTIONS = [
+  { id: 1, name: "1 раз в год" },
+  { id: 2, name: "2 раза в год" },
+  { id: 4, name: "4 раза в год" },
+  { id: 12, name: "12 раз в год" },
+];
+
 export const getBondTypeName = (type: string | number | null | undefined): string => {
   switch (type) {
     case "BOND_TYPE_UNSPECIFIED":

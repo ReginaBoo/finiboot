@@ -5,11 +5,19 @@ import toast from 'react-hot-toast';
 interface UseBondsProps {
   initialPage?: number;
   pageSize?: number;
+  sector?: string;
+  couponQuantity?: number;
+  floatingCoupon?: boolean | null;
+  amortization?: boolean | null;
 }
 
 export const useBonds = ({
   initialPage = 0,
-  pageSize = 7
+  pageSize = 7,
+  sector = '',
+  couponQuantity = 0,
+  floatingCoupon = null,
+  amortization = null
 }: UseBondsProps = {}) => {
   const [bonds, setBonds] = useState<Bond[]>([]);
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -17,6 +25,9 @@ export const useBonds = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previousBonds, setPreviousBonds] = useState<Bond[]>([]);
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [sector, couponQuantity, floatingCoupon, amortization]);
 
   useEffect(() => {
     const fetchBonds = async () => {
@@ -27,7 +38,14 @@ export const useBonds = ({
 
         setPreviousBonds(bonds);
 
-        const response = await bondsService.getBonds(currentPage, pageSize);
+        const response = await bondsService.getBonds(
+          currentPage,
+          pageSize,
+          sector,
+          couponQuantity,
+          floatingCoupon,
+          amortization
+        );
 
         setBonds(response.content);
         setTotalPages(response.total_pages);
@@ -41,7 +59,7 @@ export const useBonds = ({
     };
 
     fetchBonds();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, sector, couponQuantity, floatingCoupon, amortization]);
 
   const handlePreviousPage = () => {
     if (currentPage > 0) {

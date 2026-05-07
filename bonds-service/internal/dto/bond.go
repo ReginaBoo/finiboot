@@ -13,3 +13,10 @@ type ResponseBonds struct {
 type RequestBondBatch struct {
 	ISINs []string `json:"isins"`
 }
+
+type BondFilters struct {
+	Sector                string `form:"sector"`
+	CouponQuantityPerYear int    `form:"coupon_quantity"`
+	FloatingCouponFlag    *bool  `form:"floating_coupon"`
+	AmortizationFlag      *bool  `form:"amortization"`
+}

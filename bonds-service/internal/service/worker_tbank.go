@@ -28,7 +28,7 @@ func (w *Worker) Start(ctx context.Context) {
 				return
 
 			case <-priceTicker.C:
-				if err := w.service.UpdateMarketPrices(); err != nil {
+				if err := w.service.UpdateMarketPrices(ctx); err != nil {
 					log.Println("Price update error:", err)
 				}
 

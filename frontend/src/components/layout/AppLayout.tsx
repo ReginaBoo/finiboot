@@ -6,9 +6,16 @@ import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi2";
 
 interface AppLayoutProps {
   children: ReactNode;
+  filters: {
+    sector: string;
+    couponQuantity: number;
+    floatingCoupon: boolean | null;
+    amortization: boolean | null;
+  };
+  onFilterChange: (newFilters: any) => void;
 }
 
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout({ children, filters, onFilterChange }: AppLayoutProps) {
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState<boolean>(() => {
     const saved = localStorage.getItem("isFiltersCollapsed");
     return saved ? JSON.parse(saved) : false;
@@ -56,6 +63,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       `}>
           <SidebarFilters
             isCollapsed={isFiltersCollapsed}
+            filters={filters}
+            onFilterChange={onFilterChange}
           />
         </aside>
 

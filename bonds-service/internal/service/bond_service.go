@@ -4,19 +4,25 @@ import (
 	"bonds-service/internal/cache"
 	"bonds-service/internal/dto"
 	"bonds-service/internal/models"
+	"bonds-service/internal/repository"
 	"context"
 	"fmt"
 
 	"gorm.io/gorm"
 )
 
+type BondRepository interface {
+	FindAll(ctx context.Context, page, size int, filters dto.BondFilters) ([]models.Bond, int, int64, error)
+}
+
 type BondService struct {
 	db    *gorm.DB
 	cache *cache.PriceCache
+	repo  BondRepository
 }
 
-func NewBondService(db *gorm.DB, priceCache *cache.PriceCache) *BondService {
-	return &BondService{db: db, cache: priceCache}
+func NewBondService(db *gorm.DB, priceCache *cache.PriceCache, repository *repository.BondRepository) *BondService {
+	return &BondService{db: db, cache: priceCache, repo: repository}
 }
 
 func (s *BondService) GetBondByISIN(ctx context.Context, isin string) (*models.Bond, error) {
@@ -33,18 +39,10 @@ func (s *BondService) GetBondByISIN(ctx context.Context, isin string) (*models.B
 	return &bond, nil
 }
 
-func (s *BondService) GetAllBonds(ctx context.Context, page, size int) ([]models.Bond, int, int64, error) {
-	var totalElements int64
-	if err := s.db.WithContext(ctx).Model(&models.Bond{}).Count(&totalElements).Error; err != nil {
-		return nil, 0, 0, fmt.Errorf("error when counting bonds: %w", err)
-	}
-
-	totalPages := int((totalElements + int64(size) - 1) / int64(size))
-
-	var bonds []models.Bond
-	offset := page * size
-	if err := s.db.Preload("Coupons").Offset(offset).Limit(size).Find(&bonds).Error; err != nil {
-		return nil, 0, 0, fmt.Errorf("error when receiving the bonds: %w", err)
+func (s *BondService) GetAllBonds(ctx context.Context, page, size int, filters dto.BondFilters) ([]models.Bond, int, int64, error) {
+	bonds, totalPages, totalElements, err := s.repo.FindAll(ctx, page, size, filters)
+	if err != nil {
+		return nil, 0, 0, err
 	}
 
 	for i := range bonds {
@@ -79,6 +77,13 @@ func (s *BondService) SearchBonds(ctx context.Context, query string) ([]models.B
 		Limit(100).
 		Find(&bonds).Error; err != nil {
 		return nil, fmt.Errorf("failed to search bonds from query \"%s\": %w", query, err)
+	}
+
+	for i := range bonds {
+		price, err := s.cache.GetPrice(ctx, bonds[i].ISIN)
+		if err == nil {
+			bonds[i].LastPrice = price
+		}
 	}
 
 	return bonds, nil

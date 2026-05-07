@@ -15,49 +15,49 @@ export const BondRow = ({ bond }: BondRowProps) => {
     <div className={` mb-2 transition-all duration-300  ${isOpen ? "border-1  border-[#482A69]/30 rounded-xl shadow-[0px_0px_15px_rgba(72,42,105,0.2)]  " : "hover:shadow-[0px_0px_15px_rgba(72,42,105,0.2)] hover:rounded-xl"}`}>
       <div className={`grid grid-cols-15 gap-4 px-6 py-4 ${isOpen ? " border-b-1 border-[#482A69]/10" : ""}`}>
         {/* Название и тикер */}
-        <div className="col-span-2 text-left">
-          <p className="font-medium text-[#482A69]">{bond.name}</p>
+        <div className="col-span-2 text-left min-w-0">
+          <p className="font-medium text-[#482A69] line-clamp-2 leading-tight" title={bond.name}>{bond.name}</p>
           <p className="text-sm text-[#482A69]/60 mt-1">{bond.isin}</p>
         </div>
 
         {/* Номинал */}
         <div className="col-span-2 text-center">
-          <p className="font-medium text-[#482A69]">
+          <p className="font-medium text-[#482A69] ">
             {bond.nominal.toLocaleString('ru-RU')} ₽
           </p>
         </div>
 
         {/* Цена */}
         <div className="col-span-2 text-center">
-          <p className="font-medium text-[#482A69]">
+          <p className="font-medium text-[#482A69] line-clamp-2 leading-tight">
             {bond.last_price?.toFixed(2)} ₽
           </p>
         </div>
 
         {/* Купон */}
         <div className="col-span-2 text-center">
-          <p className="font-medium text-[#482A69]">
+          <p className="font-medium text-[#482A69] line-clamp-2 leading-tight">
             {bond.coupon_quantity_per_year}
           </p>
 
         </div>
         {/* Сектор */}
-        <div className="col-span-2 text-center">
-          <p className="font-medium text-[#482A69]">
+        <div className="col-span-2 text-center min-w-0">
+          <p className="font-medium text-[#482A69] line-clamp-2 leading-tight" title={translateSector(bond.sector)}>
             {translateSector(bond.sector)}
           </p>
         </div>
 
         {/* Дата выпуска */}
         <div className="col-span-2  text-center">
-          <p className="text-[#482A69]">
+          <p className="text-[#482A69] line-clamp-2 leading-tight">
             {new Date(bond.placement_date).toLocaleDateString('ru-RU')}
           </p>
         </div>
 
         {/* Дата погашения */}
         <div className="col-span-2 text-center">
-          <p className="text-[#482A69]">
+          <p className="text-[#482A69] line-clamp-2 leading-tight">
             {bond.perpetual_flag
               ? "-"
               : bond.maturity_date
@@ -95,7 +95,12 @@ export const BondRow = ({ bond }: BondRowProps) => {
               </div>
               <div className="font-medium text-left">
 
-                <p><span className=" text-[#482A69]/60">Тип купона:</span> {bond.coupon_quantity_per_year > 0 && bond.Coupons ? translateCouponType(bond.Coupons[0].coupon_type) : "-"}</p>
+                <p>
+                  <span className="text-[#482A69]/60">Тип купона:</span>{" "}
+                  {bond.coupon_quantity_per_year > 0 && bond.Coupons?.[0]
+                    ? translateCouponType(bond.Coupons[0].coupon_type)
+                    : "-"}
+                </p>
                 <p><span className=" text-[#482A69]/60">Амортизация:</span> {bond.amortization_flag ? "Да" : "Нет"}</p>
                 <p><span className=" text-[#482A69]/60">Бессрочная облигация:</span> {bond.perpetual_flag ? "Да" : "Нет"}</p>
 

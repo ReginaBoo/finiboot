@@ -70,7 +70,7 @@ func (s *SyncService) SyncBondsFromTbank() error {
 	return nil
 }
 
-func (s *SyncService) UpdateMarketPrices() error {
+func (s *SyncService) UpdateMarketPrices(ctx context.Context) error {
 	var bonds []models.Bond
 	if err := s.db.Select("figi", "isin", "nominal").Find(&bonds).Error; err != nil {
 		return err
@@ -101,7 +101,7 @@ func (s *SyncService) UpdateMarketPrices() error {
 
 		actualPriceInRub := (info.nominal * percentPrice) / 100
 
-		err := s.cache.SetPrice(context.Background(), info.isin, actualPriceInRub)
+		err := s.cache.SetPrice(ctx, info.isin, actualPriceInRub)
 		if err != nil {
 			log.Printf("Failed to cache price for %s: %v", info.isin, err)
 		}

@@ -112,9 +112,15 @@ func (h *BondHandler) GetBondsBatch(c *gin.Context) {
 // @Router       /bonds [get]
 func (h *BondHandler) GetBonds(c *gin.Context) {
 	ctx := c.Request.Context()
+
+	var filters dto.BondFilters
+	if err := c.ShouldBindQuery(&filters); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid filters"})
+		return
+	}
 	page, size := parsePagination(c)
 
-	bonds, totalPages, totalElements, err := h.service.GetAllBonds(ctx, page, size)
+	bonds, totalPages, totalElements, err := h.service.GetAllBonds(ctx, page, size, filters)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch bonds"})
 		return

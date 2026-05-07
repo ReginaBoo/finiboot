@@ -15,20 +15,26 @@ export default function PortfolioDetailPage() {
 
   const [activeTab, setActiveTab] = useState<'bonds' | 'transactions'>('bonds');
 
+  const [dummyFilters, setDummyFilters] = useState({
+    sector: '',
+    couponQuantity: 0,
+    floatingCoupon: null,
+    amortization: null
+  });
+
   if (isLoading) return (
-    <AppLayout>
+    <AppLayout filters={dummyFilters} onFilterChange={setDummyFilters}>
       <div className="portfolio-detail__loading">Загрузка портфеля...</div>
     </AppLayout>
   );
 
-  // временные данные для графика
   const mockCouponData = bonds.map((_, i) => ({
     month: `Месяц ${i + 1}`,
     income: 1000 + i * 50
   }));
 
   return (
-    <AppLayout>
+    <AppLayout filters={dummyFilters} onFilterChange={setDummyFilters}>
       <div className="portfolio-detail">
         <div className="portfolio-detail__header">
           <Link to="/portfolio" className="portfolio-detail__back">

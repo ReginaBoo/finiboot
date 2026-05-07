@@ -4,6 +4,7 @@ import (
 	"bonds-service/internal/api"
 	"bonds-service/internal/cache"
 	"bonds-service/internal/models"
+	"bonds-service/internal/repository"
 	"bonds-service/internal/service"
 	"context"
 	"log"
@@ -41,8 +42,8 @@ func main() {
 	}
 
 	priceCache := cache.NewPriceCache(cfg.RedisHost, cfg.RedisPort)
-
-	bondService := service.NewBondService(database, priceCache)
+	bondRepo := repository.NewBondRepository(database)
+	bondService := service.NewBondService(database, priceCache, bondRepo)
 	bondHandler := api.NewBondHandler(bondService)
 
 	client, err := service.NewTBankClient()

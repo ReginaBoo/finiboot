@@ -13,8 +13,14 @@ import type { Bond } from "../types/bond";
 
 
 export default function BondsPage() {
+  const [filters, setFilters] = useState({
+    sector: '',
+    couponQuantity: 0,
+    floatingCoupon: null,
+    amortization: null
+  });
   const { bonds, currentPage, totalPages, isLoading,
-    handlePreviousPage, handleNextPage } = useBonds({ pageSize: 10 });
+    handlePreviousPage, handleNextPage } = useBonds({ pageSize: 10, ...filters });
   const { query, setQuery, results, isLoading: isSearchLoading } = useSearchBonds();
 
   const displayedBonds = query.trim() ? results : bonds;
@@ -38,7 +44,9 @@ export default function BondsPage() {
 
   return (
     <>
-      <AppLayout>
+      <AppLayout
+        filters={filters}
+        onFilterChange={setFilters}>
         <div className="p-4 text-[#482A69] flex flex-col h-[calc(100vh)]">
           {/* Поиск */}
           <div className="flex-shrink-0 mx-10">
