@@ -1,4 +1,5 @@
 import { AppLayout } from "../components/layout/AppLayout";
+import { useState } from 'react';
 import { Link } from "react-router-dom";
 import { CreatePortfolioForm } from "../components/portfolio/CreatePortfolioForm";
 import { useDelayedLoading } from '../hooks/useDelayedLoading';
@@ -13,9 +14,15 @@ export default function PortfolioPage() {
 
   const showLoading = useDelayedLoading(isLoading, 500, 300);
 
+  const [dummyFilters, setDummyFilters] = useState({
+    sector: '',
+    couponQuantity: 0,
+    floatingCoupon: null,
+    amortization: null
+  });
   if (showLoading && portfolios.length === 0) {
     return (
-      <AppLayout>
+      <AppLayout filters={dummyFilters} onFilterChange={setDummyFilters} >
         <div className="p-8 text-[#482A69]">
           <div className="text-center">Загрузка портфелей...</div>
         </div>
@@ -25,7 +32,7 @@ export default function PortfolioPage() {
 
   return (
     <>
-      <AppLayout>
+      <AppLayout filters={dummyFilters} onFilterChange={setDummyFilters}>
         <div className="p-8 text-[#482A69]">
           <div className="flex justify-between">
             <h1 className="text-2xl font-bold mb-6">Мои портфели</h1>

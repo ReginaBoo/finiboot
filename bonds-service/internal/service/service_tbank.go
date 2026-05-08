@@ -94,16 +94,38 @@ func (s *SyncService) UpdateMarketPrices(ctx context.Context) error {
 		return err
 	}
 
+	closePricesResp, err := marketDataService.GetClosePrices(figis)
+	if err != nil {
+		return err
+	}
+	closePricesMap := make(map[string]float64)
+	for _, cp := range closePricesResp.GetClosePrices() {
+		closePricesMap[cp.GetFigi()] = ToFloat(cp.GetPrice())
+	}
 	for _, lp := range lastPricesResp.GetLastPrices() {
+		figi := lp.GetFigi()
+
 		percentPrice := ToFloat(lp.GetPrice())
+		if percentPrice == 0 {
+			if cpPrice, ok := closePricesMap[figi]; ok {
+				percentPrice = cpPrice
+			}
+		}
 
 		info := infoMap[lp.GetFigi()]
 
 		actualPriceInRub := (info.nominal * percentPrice) / 100
+		if figi == "TCS00A105WR1" {
+			log.Printf("DEBUG: Bond %s | Percent: %f | Nominal: %f | Price: %f | ISIN: %s", figi, percentPrice, infoMap[figi].nominal, actualPriceInRub, infoMap[figi].isin)
+		}
 
-		err := s.cache.SetPrice(ctx, info.isin, actualPriceInRub)
-		if err != nil {
-			log.Printf("Failed to cache price for %s: %v", info.isin, err)
+		if actualPriceInRub > 0 {
+			err := s.cache.SetPrice(ctx, info.isin, actualPriceInRub)
+			if err != nil {
+				log.Printf("Failed to cache price: %v", err)
+			}
+		} else {
+			log.Printf("Skipping zero price for %s", info.isin)
 		}
 	}
 

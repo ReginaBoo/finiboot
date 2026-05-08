@@ -42,7 +42,7 @@ func (r *BondRepository) FindAll(ctx context.Context, page, size int, filters dt
 		return nil, 0, 0, err
 	}
 
-	offset := (page - 1) * size
+	offset := (page) * size
 	err := query.Preload("Coupons").Offset(offset).Limit(size).Find(&bonds).Error
 
 	totalPages := int(math.Ceil(float64(totalElements) / float64(size)))

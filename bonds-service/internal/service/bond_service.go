@@ -7,6 +7,7 @@ import (
 	"bonds-service/internal/repository"
 	"context"
 	"fmt"
+	"log"
 
 	"gorm.io/gorm"
 )
@@ -47,9 +48,14 @@ func (s *BondService) GetAllBonds(ctx context.Context, page, size int, filters d
 
 	for i := range bonds {
 		price, err := s.cache.GetPrice(ctx, bonds[i].ISIN)
-		if err == nil {
+		if err != nil {
+			// Если здесь будет много таких логов, значит ключи в Redis не совпадают с ISIN в базе
+			log.Printf("CACHE MISS: No price for ISIN %s", bonds[i].ISIN)
+		} else {
+			log.Printf("CACHE HIT: Price for %s is %f", bonds[i].ISIN, price)
 			bonds[i].LastPrice = price
 		}
+
 	}
 
 	return bonds, totalPages, totalElements, nil
