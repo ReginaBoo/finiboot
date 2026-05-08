@@ -102,6 +102,7 @@ func (s *SyncService) UpdateMarketPrices(ctx context.Context) error {
 	for _, cp := range closePricesResp.GetClosePrices() {
 		closePricesMap[cp.GetFigi()] = ToFloat(cp.GetPrice())
 	}
+
 	for _, lp := range lastPricesResp.GetLastPrices() {
 		figi := lp.GetFigi()
 
@@ -115,9 +116,6 @@ func (s *SyncService) UpdateMarketPrices(ctx context.Context) error {
 		info := infoMap[lp.GetFigi()]
 
 		actualPriceInRub := (info.nominal * percentPrice) / 100
-		if figi == "TCS00A105WR1" {
-			log.Printf("DEBUG: Bond %s | Percent: %f | Nominal: %f | Price: %f | ISIN: %s", figi, percentPrice, infoMap[figi].nominal, actualPriceInRub, infoMap[figi].isin)
-		}
 
 		if actualPriceInRub > 0 {
 			err := s.cache.SetPrice(ctx, info.isin, actualPriceInRub)

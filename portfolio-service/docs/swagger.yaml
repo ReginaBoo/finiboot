@@ -1,0 +1,267 @@
+basePath: /
+definitions:
+  dto.CouponAnalytics:
+    properties:
+      amount:
+        type: number
+      month:
+        type: string
+    type: object
+  dto.RequestAddBond:
+    properties:
+      isin:
+        type: string
+      portfolio_id:
+        type: integer
+      purchase_date:
+        type: string
+      quantity:
+        type: integer
+      sell_date:
+        type: string
+    type: object
+  dto.RequestCreatePortfolio:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  dto.ResponsePortfolioBond:
+    properties:
+      currency:
+        type: string
+      isin:
+        type: string
+      name:
+        type: string
+      nominal:
+        type: number
+      purchase_date:
+        type: string
+      quantity:
+        type: integer
+      sell_date:
+        type: string
+    type: object
+  dto.ResponsePortfolios:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.PortfolioTransaction:
+    properties:
+      bond_isin:
+        type: string
+      bond_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      portfolio_id:
+        type: integer
+      price:
+        type: number
+      purchase_date:
+        type: string
+      quantity:
+        type: integer
+      sell_date:
+        type: string
+    type: object
+host: localhost:8003
+info:
+  contact: {}
+  title: FiniBoot Portfolio Service API
+paths:
+  /analytics/coupons:
+    get:
+      description: Считает прогноз выплат по всем облигациям в портфеле
+      parameters:
+      - description: ID портфеля
+        in: query
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CouponAnalytics'
+      security:
+      - ApiKeyAuth: []
+      summary: Аналитика купонных выплат
+      tags:
+      - analytics
+  /bond/add:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные для добавления облигации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestAddBond'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить облигацию в портфель
+      tags:
+      - portfolio
+  /bonds:
+    get:
+      parameters:
+      - description: ID портфеля
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ResponsePortfolioBond'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Получить состав облигаций в портфеле
+      tags:
+      - portfolio
+  /create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Название портфеля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestCreatePortfolio'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Создать новый портфель
+      tags:
+      - portfolio
+  /delete/{id}:
+    delete:
+      parameters:
+      - description: ID портфеля
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить портфель
+      tags:
+      - portfolio
+  /ping:
+    get:
+      description: Проверяет работоспособность сервиса
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Проверка связи
+      tags:
+      - system
+  /portfolios:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ResponsePortfolios'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Список всех портфелей пользователя
+      tags:
+      - portfolio
+  /transactions:
+    get:
+      parameters:
+      - description: ID портфеля
+        in: query
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PortfolioTransaction'
+      security:
+      - ApiKeyAuth: []
+      summary: История транзакций портфеля
+      tags:
+      - portfolio
+swagger: "2.0"

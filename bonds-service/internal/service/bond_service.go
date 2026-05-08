@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -49,7 +50,6 @@ func (s *BondService) GetAllBonds(ctx context.Context, page, size int, filters d
 	for i := range bonds {
 		price, err := s.cache.GetPrice(ctx, bonds[i].ISIN)
 		if err != nil {
-			// Если здесь будет много таких логов, значит ключи в Redis не совпадают с ISIN в базе
 			log.Printf("CACHE MISS: No price for ISIN %s", bonds[i].ISIN)
 		} else {
 			log.Printf("CACHE HIT: Price for %s is %f", bonds[i].ISIN, price)
@@ -93,4 +93,35 @@ func (s *BondService) SearchBonds(ctx context.Context, query string) ([]models.B
 	}
 
 	return bonds, nil
+}
+
+func (s *BondService) GetBondCoupons(ctx context.Context, isin string, from, to string) ([]dto.BondPayment, error) {
+	var bond models.Bond
+
+	err := s.db.WithContext(ctx).
+		Preload("Coupons", func(db *gorm.DB) *gorm.DB {
+			query := db.Order("coupon_date ASC")
+
+			if from != "" && to != "" {
+				return query.Where("coupon_date BETWEEN ? AND ?", from, to)
+			}
+
+			return query.Where("coupon_date >= ?", time.Now().AddDate(0, 0, -time.Now().Day()+1))
+		}).
+		Where("isin = ?", isin).
+		First(&bond).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	var payments []dto.BondPayment
+	for _, c := range bond.Coupons {
+		payments = append(payments, dto.BondPayment{
+			Date:   c.CouponDate,
+			Amount: c.PayOneBond,
+		})
+	}
+
+	return payments, nil
 }

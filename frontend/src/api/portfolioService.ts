@@ -49,4 +49,9 @@ export const portfolioService = {
     const response = await api.get(`${API_BASE_URL}/transactions?id=${portfolioId}`);
     return response.data
   },
+
+  async getCouponAnalytics(portfolioId: number): Promise<{ month: string; amount: number }[]> {
+    const response = await api.get(`${API_BASE_URL}/analytics/coupons?id=${portfolioId}`);
+    return response.data;
+  },
 };

@@ -1,6 +1,9 @@
 package dto
 
-import "bonds-service/internal/models"
+import (
+	"bonds-service/internal/models"
+	"time"
+)
 
 type ResponseBonds struct {
 	Content       []models.Bond `json:"content"`
@@ -19,4 +22,9 @@ type BondFilters struct {
 	CouponQuantityPerYear int    `form:"coupon_quantity"`
 	FloatingCouponFlag    *bool  `form:"floating_coupon"`
 	AmortizationFlag      *bool  `form:"amortization"`
+}
+
+type BondPayment struct {
+	Date   time.Time `json:"date"`
+	Amount float64   `json:"amount"`
 }

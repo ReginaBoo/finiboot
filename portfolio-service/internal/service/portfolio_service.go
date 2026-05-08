@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"portfolio-service/internal/dto"
 	"portfolio-service/internal/models"
+	"sort"
 	"time"
 
 	"gorm.io/gorm"
@@ -290,4 +292,67 @@ func (s *PortfolioService) fetchBondsInPortfolio(ctx context.Context, isins []st
 	}
 
 	return bonds, nil
+}
+
+func (s *PortfolioService) GetCouponAnalytics(ctx context.Context, portfolioID uint) ([]dto.CouponAnalytics, error) {
+	portfolioBonds, err := s.GetBondsPortfolio(ctx, portfolioID)
+	if err != nil {
+		return nil, err
+	}
+
+	monthlyMap := make(map[string]float64)
+
+	for _, pb := range portfolioBonds {
+		payments, err := s.fetchBondPaymentsWithDates(ctx, pb.ISIN, pb.PurchaseDate, pb.SellDate)
+		if err != nil {
+			log.Printf("failed to fetch payments for %s: %v", pb.ISIN, err)
+			continue
+		}
+
+		for _, p := range payments {
+			monthKey := p.Date.Format("2006-01")
+			totalPayout := p.Amount * float64(pb.Quantity)
+			monthlyMap[monthKey] += totalPayout
+		}
+	}
+
+	var result []dto.CouponAnalytics
+	for month, amount := range monthlyMap {
+		result = append(result, dto.CouponAnalytics{
+			Month:  month,
+			Amount: amount,
+		})
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Month < result[j].Month
+	})
+
+	return result, nil
+}
+
+func (s *PortfolioService) fetchBondPaymentsWithDates(ctx context.Context, isin string, from, to string) ([]dto.BondPayment, error) {
+	url := fmt.Sprintf("%s/%s/coupons?from=%s&to=%s", bondsServiceURL, isin, from, to)
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := s.httpClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("bonds-service returned status %d", response.StatusCode)
+	}
+
+	var payments []dto.BondPayment
+	if err := json.NewDecoder(response.Body).Decode(&payments); err != nil {
+		return nil, err
+	}
+
+	return payments, nil
 }

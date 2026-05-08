@@ -5,14 +5,14 @@ import { usePortfolioBonds } from "../hooks/usePortfolioBonds";
 import { PortfolioBondRow } from "../components/portfolio/PortfolioBondRow";
 import { PortfolioTransactionsList } from "../components/portfolio/PortfolioTransactionsList";
 import { CouponChart } from "../components/portfolio/CouponChart";
-
+import { useCouponAnalytics } from "../hooks/useCouponAnalytics";
 import '../assets/PortfolioDetailPage.scss';
 
 export default function PortfolioDetailPage() {
   const { id } = useParams<{ id: string }>();
   const portfolioId = id ? parseInt(id) : undefined;
   const { bonds, isLoading } = usePortfolioBonds(portfolioId);
-
+  const { data: couponData } = useCouponAnalytics(portfolioId);
   const [activeTab, setActiveTab] = useState<'bonds' | 'transactions'>('bonds');
 
   const [dummyFilters, setDummyFilters] = useState({
@@ -27,11 +27,6 @@ export default function PortfolioDetailPage() {
       <div className="portfolio-detail__loading">Загрузка портфеля...</div>
     </AppLayout>
   );
-
-  const mockCouponData = bonds.map((_, i) => ({
-    month: `Месяц ${i + 1}`,
-    income: 1000 + i * 50
-  }));
 
   return (
     <AppLayout filters={dummyFilters} onFilterChange={setDummyFilters}>
@@ -60,7 +55,7 @@ export default function PortfolioDetailPage() {
         <div className="portfolio-detail__content">
           {activeTab === 'bonds' && (
             <>
-              <CouponChart data={mockCouponData} />
+              <CouponChart data={couponData} />
               <div className="portfolio-detail__bond-list">
                 {bonds.length === 0 ? (
                   <div className="portfolio-detail__empty">

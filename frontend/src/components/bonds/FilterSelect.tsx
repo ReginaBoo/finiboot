@@ -47,9 +47,9 @@ export function FilterSelect({ options, selectedValue, onSelect, placeholder = "
             [&::-webkit-scrollbar]:w-1.5
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-track]:my-2
-            [&::-webkit-scrollbar-thumb]:bg-fuchsia-500/50
+            [&::-webkit-scrollbar-thumb]:bg-white/80
             [&::-webkit-scrollbar-thumb]:rounded-full
-            hover:[&::-webkit-scrollbar-thumb]:bg-fuchsia-400">
+           ">
             {options.map((opt) => (
               <button
                 key={opt.id}

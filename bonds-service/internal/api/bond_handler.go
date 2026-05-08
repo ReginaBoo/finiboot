@@ -22,12 +22,14 @@ func NewBondHandler(service *service.BondService) *BondHandler {
 }
 
 func (h *BondHandler) SetupRoutes(router *gin.Engine) {
+
 	router.POST("/batch", h.GetBondsBatch)
 
 	router.GET("/", h.GetBonds)
 	router.GET("/:isin", h.GetBondByISIN)
 	router.GET("/ping", h.Ping)
 	router.GET("/search", h.SearchBonds)
+	router.GET("/:isin/coupons", h.GetCoupons)
 }
 
 // Ping godoc
@@ -164,6 +166,42 @@ func (h *BondHandler) SearchBonds(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, bonds)
+}
+
+// GetCoupons godoc
+// @Summary      Получить купоны по ISIN
+// @Description  Возвращает список купонных выплат для облигации за указанный период
+// @Tags         bonds
+// @Accept       json
+// @Produce      json
+// @Param        isin  path      string  true   "ISIN облигации"
+// @Param        from  query     string  false  "Начальная дата (YYYY-MM-DD)"
+// @Param        to    query     string  false  "Конечная дата (YYYY-MM-DD)"
+// @Success      200   {array}   dto.BondPayment
+// @Failure      400   {object}  map[string]string "ISIN is required"
+// @Failure      404   {object}  map[string]string "Bond not found"
+// @Failure      500   {object}  map[string]string "Internal server error"
+// @Router       /bonds/{isin}/coupons [get]
+func (h *BondHandler) GetCoupons(c *gin.Context) {
+	isin := c.Param("isin")
+	from := c.Query("from")
+	to := c.Query("to")
+	if isin == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ISIN is required"})
+		return
+	}
+
+	payments, err := h.service.GetBondCoupons(c.Request.Context(), isin, from, to)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Bond not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, payments)
 }
 
 func parsePagination(c *gin.Context) (int, int) {

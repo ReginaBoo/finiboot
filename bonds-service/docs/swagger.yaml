@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  dto.BondPayment:
+    properties:
+      amount:
+        type: number
+      date:
+        type: string
+    type: object
   dto.RequestBondBatch:
     properties:
       isins:
@@ -52,6 +59,8 @@ definitions:
         type: number
       isin:
         type: string
+      last_price:
+        type: number
       maturity_date:
         type: string
       name:
@@ -101,12 +110,10 @@ definitions:
       updated_at:
         type: string
     type: object
-host: localhost:8080
+host: localhost:8002
 info:
   contact: {}
-  description: Сервис для управления и поиска облигаций в системе FiniBoot.
   title: FiniBoot Bonds Service API
-  version: "1.0"
 paths:
   /bonds:
     get:
@@ -166,6 +173,55 @@ paths:
               type: string
             type: object
       summary: Получить облигацию по ISIN
+      tags:
+      - bonds
+  /bonds/{isin}/coupons:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список купонных выплат для облигации за указанный период
+      parameters:
+      - description: ISIN облигации
+        in: path
+        name: isin
+        required: true
+        type: string
+      - description: Начальная дата (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: Конечная дата (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.BondPayment'
+            type: array
+        "400":
+          description: ISIN is required
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Bond not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить купоны по ISIN
       tags:
       - bonds
   /bonds/batch:

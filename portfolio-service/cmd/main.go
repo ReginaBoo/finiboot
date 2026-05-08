@@ -13,6 +13,11 @@ import (
 	"github.com/reginaboo/shared/db"
 )
 
+// @title           FiniBoot Portfolio Service API
+
+// @host      localhost:8003
+// @BasePath  /
+// @query.collection.format multi
 func main() {
 	if os.Getenv("DB_HOST") == "" {
 		_ = godotenv.Load(".env")

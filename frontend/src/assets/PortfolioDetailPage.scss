@@ -82,4 +82,31 @@
     padding: 50px;
     text-align: center;
   }
+
+  .recharts-wrapper {
+    outline: none !important;
+
+    svg {
+      outline: none !important;
+    }
+
+    // Находим все возможные элементы графиков и убираем контур
+    path,
+    rect,
+    circle,
+    .recharts-bar-rectangle,
+    .recharts-rectangle,
+    .recharts-active-dot {
+      outline: none !important;
+      // Иногда браузеры используют box-shadow для фокуса
+      box-shadow: none !important;
+      // Убираем подсветку клика в мобильных браузерах
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    // Специально для состояния фокуса внутри SVG
+    *:focus {
+      outline: none !important;
+    }
+  }
 }

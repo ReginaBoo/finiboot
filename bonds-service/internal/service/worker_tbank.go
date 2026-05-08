@@ -20,8 +20,8 @@ func (w *Worker) Start(ctx context.Context) {
 	priceTicker := time.NewTicker(5 * time.Minute)
 	fullSyncTicker := time.NewTicker(1 * time.Hour)
 	go func() {
-
 		for {
+
 			select {
 
 			case <-ctx.Done():

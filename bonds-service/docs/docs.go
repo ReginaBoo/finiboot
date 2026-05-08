@@ -160,6 +160,80 @@ const docTemplate = `{
                 }
             }
         },
+        "/bonds/{isin}/coupons": {
+            "get": {
+                "description": "Возвращает список купонных выплат для облигации за указанный период",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bonds"
+                ],
+                "summary": "Получить купоны по ISIN",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ISIN облигации",
+                        "name": "isin",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Начальная дата (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Конечная дата (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.BondPayment"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ISIN is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Bond not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/ping": {
             "get": {
                 "description": "Простой пинг для проверки работоспособности API",
@@ -235,6 +309,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.BondPayment": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.RequestBondBatch": {
             "type": "object",
             "properties": {
@@ -314,6 +399,9 @@ const docTemplate = `{
                 "isin": {
                     "type": "string"
                 },
+                "last_price": {
+                    "type": "number"
+                },
                 "maturity_date": {
                     "type": "string"
                 },
@@ -392,12 +480,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
+	Version:          "",
+	Host:             "localhost:8002",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "FiniBoot Bonds Service API",
-	Description:      "Сервис для управления и поиска облигаций в системе FiniBoot.",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

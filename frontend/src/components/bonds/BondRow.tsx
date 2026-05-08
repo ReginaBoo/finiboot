@@ -17,12 +17,12 @@ export const BondRow = ({ bond }: BondRowProps) => {
         {/* Название и тикер */}
         <div className="col-span-2 text-left min-w-0">
           <p className="font-medium text-[#482A69] line-clamp-2 leading-tight" title={bond.name}>{bond.name}</p>
-          <p className="text-sm text-[#482A69]/60 mt-1">{bond.isin}</p>
+          <p className="text-sm text-[#482A69]/60 mt-1 line-clamp-2 leading-tight">{bond.isin}</p>
         </div>
 
         {/* Номинал */}
         <div className="col-span-2 text-center">
-          <p className="font-medium text-[#482A69] ">
+          <p className="font-medium text-[#482A69] line-clamp-2 leading-tight">
             {bond.nominal.toLocaleString('ru-RU')} ₽
           </p>
         </div>
