@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -6,26 +7,74 @@ import {
   Tooltip,
   CartesianGrid,
   ResponsiveContainer,
-  Brush, Cell
+  Brush
 } from "recharts";
 
 type CouponData = {
-  month: string;
+  month: string;  // Формат "YYYY-MM"
   amount: number;
 };
 
 export function CouponChart({ data }: { data: CouponData[] }) {
   const currentDate = new Date();
-  const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-  const getBarColor = (monthKey: string) => {
-    return monthKey < currentMonthKey ? "#D1C7D9" : "#8B759E";
-  };
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
+
+  const currentMonthKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+  const targetEndMonthKey = `${currentYear + 1}-${String(currentMonth).padStart(2, '0')}`;
+
+  // --- ЗАПОЛНЯЕМ ПРОПУЩЕННЫЕ МЕСЯЦЫ С ПОМОЩЬЮ USEMEMO ---
+  const filledData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+
+    // Превращаем массив от бэка в Map для моментального поиска по ключу "YYYY-MM"
+    const dataMap = new Map<string, number>();
+    data.forEach(item => dataMap.set(item.month, item.amount));
+
+    // Находим самую раннюю и самую позднюю даты из бэкенда
+    const sortedMonths = data.map(item => item.month).sort();
+    const [startYear, startMonth] = sortedMonths[0].split('-').map(Number);
+    const [endYear, endMonth] = sortedMonths[sortedMonths.length - 1].split('-').map(Number);
+
+    const result: CouponData[] = [];
+
+    // Создаем два объекта дат для цикла
+    const startDate = new Date(startYear, startMonth - 1, 1);
+    const endDate = new Date(endYear, endMonth - 1, 1);
+
+    // Шагаем по каждому месяцу от начала до конца
+    while (startDate <= endDate) {
+      const yearStr = startDate.getFullYear();
+      const monthStr = String(startDate.getMonth() + 1).padStart(2, '0');
+      const monthKey = `${yearStr}-${monthStr}`;
+
+      // Если у бэка есть данные — берем их сумму, если нет — ставим 0
+      result.push({
+        month: monthKey,
+        amount: dataMap.has(monthKey) ? dataMap.get(monthKey)! : 0
+      });
+
+      // Переходим к следующему месяцу
+      startDate.setMonth(startDate.getMonth() + 1);
+    }
+
+    return result;
+  }, [data]);
+
+  // --- РАСЧЕТ ИНДЕКСОВ (теперь по заполненному массиву filledData) ---
+  let startIndex = filledData.findIndex(item => item.month >= currentMonthKey);
+  if (startIndex === -1) startIndex = 0;
+
+  let endIndex = filledData.findIndex(item => item.month >= targetEndMonthKey);
+  if (endIndex === -1) endIndex = filledData.length - 1;
+
   return (
     <div className="coupon-chart-card">
       <h3 className="coupon-chart-title">Выплаты купонов</h3>
 
       <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={data} margin={{ top: 20, right: 80, left: 20, bottom: 20 }}>
+        {/* Передаем ИСПРАВЛЕННЫЕ данные filledData вместо data */}
+        <BarChart data={filledData} margin={{ top: 20, right: 80, left: 20, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
 
           <XAxis
@@ -35,10 +84,8 @@ export function CouponChart({ data }: { data: CouponData[] }) {
             }}
             tick={{ fontSize: 11, fill: '#666' }}
             axisLine={{ stroke: '#E0E0E0' }}
-
-
-            interval={1}
-            minTickGap={20}
+            interval={1} // Вернули 1, чтобы месяцы не наслаивались друг на друга, когда их станет много
+            minTickGap={25}
           />
 
           <YAxis
@@ -56,14 +103,35 @@ export function CouponChart({ data }: { data: CouponData[] }) {
 
           <Bar
             dataKey="amount"
-            radius={[6, 6, 0, 0]}
             barSize={25}
+            shape={(props: any) => {
+              const { x, y, width, height, payload } = props;
+
+              // Железно скрываем отрисовку столбика, если значение 0
+              if (!payload || !payload.amount || payload.amount === 0) return <g />;
+
+              const isPast = payload.month < currentMonthKey;
+              const barColor = isPast ? "#D1C7D9" : "#8B759E";
+
+              return (
+                <rect
+                  x={x}
+                  y={y}
+                  width={width}
+                  height={height}
+                  fill={barColor}
+                  rx={6}
+                  ry={6}
+                />
+              );
+            }}
             label={(props: any) => {
-              const { x, y, width, value, index } = props;
+              const { x, y, width, value, payload } = props;
               const numericValue = Number(value);
+
               if (!numericValue || numericValue === 0) return null;
 
-              const isPast = data[index].month < currentMonthKey;
+              const isPast = payload && payload.month ? payload.month < currentMonthKey : false;
 
               return (
                 <text
@@ -78,18 +146,15 @@ export function CouponChart({ data }: { data: CouponData[] }) {
                 </text>
               );
             }}
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={getBarColor(entry.month)} />
-            ))}
-          </Bar>
+          />
 
           <Brush
             dataKey="month"
             height={15}
             stroke="#482A69"
             fill="#fff"
-
+            startIndex={startIndex}
+            endIndex={endIndex}
             tickFormatter={(value) => {
               const date = new Date(value);
               return date.toLocaleString('ru', { month: 'short', year: '2-digit' }).replace(' г.', '');
